@@ -98,7 +98,6 @@ def _sample_instance(name: str, port: int, query_port: int) -> dict[str, Any]:
             "scenarioId": "{ECC61978EDCC2B5A}Missions/23_Campaign.conf",
             "maxPlayers": 64,
             "visible": True,
-            "crossplay": True,
             "gameHostRegisterBindAddress": "",
             "gameHostRegisterPort": 0,
             "publicAddress": "",

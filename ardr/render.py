@@ -4,7 +4,6 @@ from pathlib import Path
 from typing import Any
 
 from .config import instance_app_id, select_instances, validate_config, write_json
-from .constants import SUPPORTED_CLIENTS_CROSSPLAY, SUPPORTED_CLIENTS_PC_ONLY
 from .paths import generated_dir, install_dir, profile_dir
 from .platforming import executable_name, is_windows, quote, script_suffix
 
@@ -13,14 +12,13 @@ def render_server_config(instance: dict[str, Any]) -> dict[str, Any]:
     server = dict(instance.get("server", {}))
     port = int(instance.get("port", 2001))
     query_port = int(instance.get("queryPort", port + 15776))
-    crossplay = bool(server.get("crossplay", True))
     cfg = {
         "bindAddress": server.get("bindAddress", "0.0.0.0"),
         "bindPort": port,
         "publicAddress": server.get("publicAddress", ""),
         "publicPort": int(server.get("publicPort", port)),
         "a2s": {"address": server.get("queryAddress", "0.0.0.0"), "port": query_port},
-        "game": _game_block(instance, server, crossplay),
+        "game": _game_block(instance, server),
     }
     for key in ("gameHostBindAddress", "gameHostRegisterBindAddress"):
         if server.get(key):
@@ -31,7 +29,7 @@ def render_server_config(instance: dict[str, Any]) -> dict[str, Any]:
     return cfg
 
 
-def _game_block(instance: dict[str, Any], server: dict[str, Any], crossplay: bool) -> dict[str, Any]:
+def _game_block(instance: dict[str, Any], server: dict[str, Any]) -> dict[str, Any]:
     game = {
         "name": server.get("name", instance["name"]),
         "password": server.get("password", ""),
@@ -39,7 +37,6 @@ def _game_block(instance: dict[str, Any], server: dict[str, Any], crossplay: boo
         "scenarioId": server.get("scenarioId", "{ECC61978EDCC2B5A}Missions/23_Campaign.conf"),
         "maxPlayers": int(server.get("maxPlayers", 64)),
         "visible": bool(server.get("visible", True)),
-        "supportedGameClientTypes": SUPPORTED_CLIENTS_CROSSPLAY if crossplay else SUPPORTED_CLIENTS_PC_ONLY,
         "gameProperties": {
             "serverMaxViewDistance": int(server.get("serverMaxViewDistance", 2500)),
             "serverMinGrassDistance": int(server.get("serverMinGrassDistance", 50)),

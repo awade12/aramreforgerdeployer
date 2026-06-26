@@ -17,7 +17,6 @@
         "scenarioId": "{ECC61978EDCC2B5A}Missions/23_Campaign.conf",
         "maxPlayers": 64,
         "visible": true,
-        "crossplay": true,
         "bindAddress": "0.0.0.0",
         "publicAddress": "",
         "publicPort": 2001,
@@ -39,4 +38,3 @@
     }
   ]
 }
-

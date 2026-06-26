@@ -43,8 +43,7 @@ Save each server as `instances/<name>.json`.
     "adminPassword": "change-this-admin-password",
     "scenarioId": "{ECC61978EDCC2B5A}Missions/23_Campaign.conf",
     "maxPlayers": 64,
-    "visible": true,
-    "crossplay": true
+    "visible": true
   },
   "mods": []
 }

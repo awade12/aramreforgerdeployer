@@ -57,7 +57,6 @@ def _server_block(name: str, server: dict[str, Any]) -> dict[str, Any]:
         "scenarioId": prompt("Scenario ID", str(server.get("scenarioId", "{ECC61978EDCC2B5A}Missions/23_Campaign.conf"))),
         "maxPlayers": prompt_int("Max players", int(server.get("maxPlayers", 64))),
         "visible": prompt_bool("Show in public browser", bool(server.get("visible", True))),
-        "crossplay": prompt_bool("Allow crossplay clients", bool(server.get("crossplay", True))),
         "gameHostRegisterBindAddress": str(server.get("gameHostRegisterBindAddress", "")),
         "gameHostRegisterPort": int(server.get("gameHostRegisterPort", 0)),
         "publicAddress": str(server.get("publicAddress", "")),
