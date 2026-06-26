@@ -5,6 +5,8 @@ import struct
 import time
 from typing import Any
 
+from .terminal import heading, kv
+
 
 A2S_INFO = b"\xff\xff\xff\xffTSource Engine Query\x00"
 
@@ -18,10 +20,8 @@ def query_server(instance: dict[str, Any], host: str, timeout: float) -> None:
     except OSError as exc:
         raise SystemExit(f"Query failed for {host}:{port}: {exc}") from exc
     ping_ms = (time.monotonic() - started) * 1000
-    print(f"Query: {host}:{port} ({ping_ms:.0f} ms)")
-    for key in ("name", "map", "folder", "game", "players", "max_players", "bots", "version"):
-        if key in info:
-            print(f"{key.replace('_', ' ').title()}: {info[key]}")
+    heading("Live Query", f"{host}:{port} - {ping_ms:.0f} ms")
+    kv((key.replace("_", " ").title(), info[key]) for key in ("name", "map", "folder", "game", "players", "max_players", "bots", "version") if key in info)
 
 
 def _request(host: str, port: int, timeout: float) -> bytes:
@@ -64,4 +64,3 @@ def _parse_info(data: bytes) -> dict[str, Any]:
 def _read_cstr(data: bytes, offset: int) -> tuple[str, int]:
     end = data.index(0, offset)
     return data[offset:end].decode("utf-8", errors="replace"), end + 1
-

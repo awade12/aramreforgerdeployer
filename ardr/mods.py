@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from .config import save_config, select_instances
+from .terminal import heading, table
 
 
 def add_mod(config_path, config: dict[str, Any], instance_name: str, mod_id: str, name: str, version: str) -> None:
@@ -22,11 +23,14 @@ def add_mod(config_path, config: dict[str, Any], instance_name: str, mod_id: str
 def list_mods(config: dict[str, Any], instance_name: str) -> None:
     instance = select_instances(config, instance_name)[0]
     mods = instance.get("mods", [])
+    heading(f"Mods: {instance_name}", f"{len(mods)} configured")
     if not mods:
-        print(f"No mods configured for {instance_name}.")
+        print("  No mods configured.")
         return
-    for mod in mods:
-        print(f"{mod.get('modId')}  {mod.get('name', '')}  {mod.get('version', '')}")
+    table(
+        ["Mod ID", "Name", "Version"],
+        [[mod.get("modId", ""), mod.get("name", ""), mod.get("version", "")] for mod in mods],
+    )
 
 
 def remove_mod(config_path, config: dict[str, Any], instance_name: str, mod_id: str) -> None:
@@ -35,4 +39,3 @@ def remove_mod(config_path, config: dict[str, Any], instance_name: str, mod_id: 
     instance["mods"] = [mod for mod in instance.get("mods", []) if mod.get("modId") != mod_id]
     save_config(config_path, config)
     print("Removed mod." if len(instance["mods"]) < before else "Mod was not configured.")
-

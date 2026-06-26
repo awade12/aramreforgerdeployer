@@ -9,6 +9,7 @@ from .info import show_info
 from .ops import install_instances
 from .render import render_instances
 from .services import control_service, render_systemd
+from .terminal import heading, section, table
 
 
 def deploy_instance(config_path: Path, config: dict[str, Any], instance: dict[str, Any], apply: bool) -> None:
@@ -23,14 +24,11 @@ def deploy_instance(config_path: Path, config: dict[str, Any], instance: dict[st
         ("start service", lambda: control_service(instance, "start")),
     ]
     if not apply:
-        print("Dry run. Re-run with --apply to execute:")
-        for label, _ in steps:
-            print(f"  - {label}")
-        print(f"  - show info for {name}")
+        heading(f"Launch Preview: {name}", "Re-run with --apply to execute these steps.")
+        table("Step Action".split(), [[index, label] for index, (label, _) in enumerate(steps, start=1)] + [[len(steps) + 1, f"show info for {name}"]])
         return
     for label, action in steps:
-        print(f"==> {label}")
+        section(label)
         action()
-    print("==> info")
+    section("info")
     show_info(config_path, config, instance)
-

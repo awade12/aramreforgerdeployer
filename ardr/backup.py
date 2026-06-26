@@ -8,6 +8,7 @@ from typing import Any
 
 from .config import select_instances
 from .paths import base_dir, install_dir, profile_dir
+from .terminal import heading, table
 
 
 def create_backup(config_path: Path, config: dict[str, Any], instance_name: str | None, include_downloads: bool) -> Path:
@@ -39,11 +40,18 @@ def restore_backup(archive: Path, target: Path) -> None:
 
 def list_backups(config_path: Path, config: dict[str, Any]) -> None:
     out_dir = base_dir(config_path, config) / "backups"
+    heading("Backups", str(out_dir))
     if not out_dir.exists():
-        print("No backups found.")
+        print("  No backups found.")
         return
-    for path in sorted(out_dir.glob("*.tar.gz")):
-        print(path)
+    paths = sorted(out_dir.glob("*.tar.gz"))
+    if not paths:
+        print("  No backups found.")
+        return
+    table(
+        ["Archive", "Size"],
+        [[path.name, _size(path.stat().st_size)] for path in paths],
+    )
 
 
 def _add_if_exists(tar: tarfile.TarFile, path: Path, arcname: str) -> None:
@@ -59,3 +67,11 @@ def _add_dir_if_exists(tar: tarfile.TarFile, path: Path, arcname: str) -> None:
 def _skip_noise(info: tarfile.TarInfo) -> tarfile.TarInfo | None:
     return None if "__pycache__" in info.name else info
 
+
+def _size(bytes_count: int) -> str:
+    value = float(bytes_count)
+    for unit in ("B", "KB", "MB", "GB"):
+        if value < 1024 or unit == "GB":
+            return f"{value:.1f} {unit}" if unit != "B" else f"{int(value)} B"
+        value /= 1024
+    return f"{value:.1f} GB"

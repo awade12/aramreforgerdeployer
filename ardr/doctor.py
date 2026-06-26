@@ -10,9 +10,11 @@ from typing import Any
 from .config import normalize_config_ports, validate_config
 from .paths import base_dir, install_dir
 from .platforming import executable_name, is_windows
+from .terminal import check_line, heading, note, section
 
 
 def run_doctor(config_path: Path, config: dict[str, Any]) -> int:
+    heading("Doctor", "Host, config, server files, and network preflight checks.")
     failures = 0
     failures += _check("Python 3.10+", sys.version_info >= (3, 10), sys.version.split()[0])
     failures += _check("SteamCMD available", _steamcmd_exists(config), str(config.get("steamcmd", "steamcmd")))
@@ -25,9 +27,7 @@ def run_doctor(config_path: Path, config: dict[str, Any]) -> int:
 
 
 def _check(label: str, ok: bool, detail: str = "") -> int:
-    mark = "OK" if ok else "FAIL"
-    suffix = f" - {detail}" if detail else ""
-    print(f"[{mark}] {label}{suffix}")
+    check_line(ok, label, detail)
     return 0 if ok else 1
 
 
@@ -44,6 +44,7 @@ def _disk_check(config_path: Path, config: dict[str, Any]) -> int:
 
 
 def _port_checks(config: dict[str, Any]) -> int:
+    section("UDP Bind Checks")
     failures = 0
     for instance in config.get("instances", []):
         for label, port in (("game", int(instance["port"])), ("query", int(instance["queryPort"]))):
@@ -62,6 +63,7 @@ def _udp_bindable(port: int) -> bool:
 
 
 def _executable_checks(config_path: Path, config: dict[str, Any]) -> int:
+    section("Server Executables")
     failures = 0
     for instance in config.get("instances", []):
         exe = install_dir(config_path, config, instance) / executable_name()
@@ -70,15 +72,15 @@ def _executable_checks(config_path: Path, config: dict[str, Any]) -> int:
 
 
 def _firewall_notes(config: dict[str, Any]) -> None:
+    section("Firewall Notes")
     if is_windows():
-        print("[INFO] Windows firewall: run `reforger ports` for New-NetFirewallRule examples.")
+        note("Windows firewall: run `reforger ports` for New-NetFirewallRule examples.")
         return
     ufw = shutil.which("ufw")
     if ufw:
         result = subprocess.run([ufw, "status"], text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False)
         first = result.stdout.splitlines()[0] if result.stdout else "unknown"
-        print(f"[INFO] UFW status: {first}")
+        note(f"UFW status: {first}")
     else:
-        print("[INFO] UFW not found; open UDP ports with your distro firewall if enabled.")
-    print("[INFO] VPS provider firewall/security groups must also allow the UDP ports from `reforger ports`.")
-
+        note("UFW not found; open UDP ports with your distro firewall if enabled.")
+    note("VPS provider firewall/security groups must also allow the UDP ports from `reforger ports`.")

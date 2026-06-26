@@ -20,7 +20,8 @@ from .ops import install_instances, restart_instance, show_logs, show_ports, upd
 from .processes import pause_instance, resume_instance, start_instance, stop_instance
 from .render import render_instances
 from .services import control_service, manage_windows_task, render_systemd, service_available
-from .status import print_status
+from .status import status_row
+from .terminal import heading, table
 from .web import serve_web
 
 def cmd_render(args: argparse.Namespace) -> None:
@@ -79,8 +80,12 @@ def cmd_debug(args: argparse.Namespace) -> None:
 
 def cmd_status(args: argparse.Namespace) -> None:
     config_path, config = _load_with_ports(args)
-    for instance in select_instances(config, _many_instance_name(args)):
-        print_status(config_path, config, instance)
+    targets = select_instances(config, _many_instance_name(args))
+    heading("Status", f"{len(targets)} server{'s' if len(targets) != 1 else ''}")
+    table(
+        ["Server", "State", "Details", "Systemd"],
+        [list(status_row(config_path, config, instance)) for instance in targets],
+    )
 
 
 def cmd_info(args: argparse.Namespace) -> None:

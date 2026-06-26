@@ -9,6 +9,7 @@ from .paths import install_dir, profile_dir
 from .platforming import executable_name, is_windows, run_checked
 from .processes import process_running, read_pid, start_instance, stop_instance
 from .render import render_instances, steamcmd_command
+from .terminal import commands, heading, section, table
 
 
 def install_instances(config_path: Path, config: dict[str, Any], instance_name: str | None) -> None:
@@ -45,16 +46,30 @@ def restart_instance(config_path: Path, config: dict[str, Any], instance: dict[s
 
 def show_ports(config: dict[str, Any], instance_name: str | None) -> None:
     targets = select_instances(config, instance_name)
+    heading("Ports", "Open these UDP ports locally and in your VPS provider firewall.")
+    table(
+        ["Server", "Game UDP", "Query UDP"],
+        [[instance["name"], int(instance["port"]), int(instance["queryPort"])] for instance in targets],
+    )
+    section("Linux ufw")
     for instance in targets:
-        print(f"{instance['name']}: UDP {int(instance['port'])} game, UDP {int(instance['queryPort'])} query/A2S")
-    print("\nLinux ufw examples:")
-    for instance in targets:
-        print(f"  sudo ufw allow {int(instance['port'])}/udp")
-        print(f"  sudo ufw allow {int(instance['queryPort'])}/udp")
-    print("\nWindows PowerShell examples:")
+        commands(
+            [
+                (f"sudo ufw allow {int(instance['port'])}/udp", f"{instance['name']} game"),
+                (f"sudo ufw allow {int(instance['queryPort'])}/udp", f"{instance['name']} query"),
+            ]
+        )
+    section("Windows PowerShell")
     for instance in targets:
         ports = f"{int(instance['port'])},{int(instance['queryPort'])}"
-        print(f'  New-NetFirewallRule -DisplayName "Reforger {instance["name"]}" -Direction Inbound -Protocol UDP -LocalPort {ports} -Action Allow')
+        commands(
+            [
+                (
+                    f'New-NetFirewallRule -DisplayName "Reforger {instance["name"]}" -Direction Inbound -Protocol UDP -LocalPort {ports} -Action Allow',
+                    "allow both UDP ports",
+                )
+            ]
+        )
 
 
 def show_logs(config_path: Path, config: dict[str, Any], instance: dict[str, Any], lines: int, follow: bool, systemd: bool) -> None:
@@ -63,10 +78,10 @@ def show_logs(config_path: Path, config: dict[str, Any], instance: dict[str, Any
         run_checked(cmd + (["-f"] if follow else []))
         return
     profile = profile_dir(config_path, instance)
-    print(f"Profile/log directory: {profile}")
+    heading("Logs", str(profile))
     logs = sorted(profile.rglob("*.log"), key=lambda p: p.stat().st_mtime, reverse=True) if profile.exists() else []
     if not logs:
-        print("No .log files found yet. If using systemd, try logs --systemd --follow.")
+        print("  No .log files found yet. If using systemd, try `reforger tail --systemd`.")
         return
     cmd = ["tail", "-n", str(lines)]
     run_checked(cmd + (["-f"] if follow else []) + [str(logs[0])])
