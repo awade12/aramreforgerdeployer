@@ -7,8 +7,6 @@ It uses the official dedicated-server Steam app IDs:
 - Stable server: `1874900` ([SteamDB](https://steamdb.info/app/1874900/))
 - Experimental server: `1890870` ([SteamDB](https://steamdb.info/app/1890870/))
 
-Useful official/community references:
-
 - Arma Reforger server config wiki: <https://community.bistudio.com/wiki/Arma_Reforger:Server_Config>
 - SteamCMD documentation: <https://developer.valvesoftware.com/wiki/SteamCMD>
 
@@ -110,6 +108,7 @@ Detailed config examples are in [docs/CONFIGURATION.md](/Users/awade/Documents/a
 ./ardr.py configure                    # guided add/edit wizard
 ./ardr.py menu                         # interactive operator menu
 ./ardr.py info --instance reforger-1   # one-view instance details
+./ardr.py query --instance reforger-1  # live server query
 ./ardr.py validate                     # check config and port collisions
 ./ardr.py ports --fix                  # auto-assign safe ports and save instance files
 ./ardr.py doctor                       # preflight host/config checks
@@ -122,6 +121,7 @@ sudo ./ardr.py firewall apply
 sudo ./ardr.py systemd install --instance reforger-1
 sudo ./ardr.py service enable --instance reforger-1
 sudo ./ardr.py service start --instance reforger-1
+./ardr.py deploy --instance reforger-1 # dry-run first deploy
 ./ardr.py update                       # update and restart servers that were running
 ./ardr.py update --instance reforger-1 --no-restart
 ./ardr.py start --instance reforger-1  # manual smoke test only on VPS

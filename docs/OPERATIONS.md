@@ -8,6 +8,31 @@
 
 This prints service state, connection hint, ports, important file paths, useful commands, and the rendered launch command.
 
+## Live Query
+
+```bash
+./ardr.py query --instance reforger-1
+./ardr.py query --instance reforger-1 --host 203.0.113.10
+```
+
+This queries the instance A2S port and prints live server name, map, player count, version, and ping when the server responds.
+
+## First Deploy
+
+Preview:
+
+```bash
+./ardr.py deploy --instance reforger-1
+```
+
+Apply:
+
+```bash
+sudo ./ardr.py deploy --instance reforger-1 --apply
+```
+
+Deploy renders configs, creates a backup, installs/updates server files, applies local firewall rules, installs systemd, enables the service, starts it, and prints `info`.
+
 ## Service Controls
 
 After `sudo ./ardr.py systemd install`, use:

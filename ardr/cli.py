@@ -5,11 +5,10 @@ import argparse
 from .commands import (
     cmd_battleye,
     cmd_backup,
-    cmd_configure,
     cmd_debug,
+    cmd_deploy,
     cmd_doctor,
     cmd_firewall,
-    cmd_init,
     cmd_install,
     cmd_info,
     cmd_linuxgsm,
@@ -19,6 +18,7 @@ from .commands import (
     cmd_mods,
     cmd_pause,
     cmd_ports,
+    cmd_query,
     cmd_render,
     cmd_restart,
     cmd_resume,
@@ -28,9 +28,9 @@ from .commands import (
     cmd_stop,
     cmd_systemd,
     cmd_update,
-    cmd_validate,
     cmd_windows_task,
 )
+from .config_commands import cmd_configure, cmd_init, cmd_validate
 from .constants import DEFAULT_CONFIG
 
 
@@ -129,6 +129,8 @@ def add_management(sub: argparse._SubParsersAction) -> None:
     add_firewall(sub)
     add_backup(sub)
     add_mods(sub)
+    add_query(sub)
+    add_deploy(sub)
 
 
 def add_service(sub: argparse._SubParsersAction) -> None:
@@ -166,6 +168,21 @@ def add_mods(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--name", default="")
     p.add_argument("--version", default="")
     p.set_defaults(func=cmd_mods)
+
+
+def add_query(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser("query", help="Query live A2S server status.")
+    p.add_argument("--instance", required=True)
+    p.add_argument("--host")
+    p.add_argument("--timeout", type=float, default=3.0)
+    p.set_defaults(func=cmd_query)
+
+
+def add_deploy(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser("deploy", help="Run first-deploy workflow for one instance.")
+    p.add_argument("--instance", required=True)
+    p.add_argument("--apply", action="store_true", help="Execute changes. Default is dry-run.")
+    p.set_defaults(func=cmd_deploy)
 
 
 def main() -> None:

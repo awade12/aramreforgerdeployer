@@ -4,8 +4,10 @@ import argparse
 from pathlib import Path
 
 from .backup import create_backup, list_backups, restore_backup
+from .deploy import deploy_instance
 from .firewall import apply_firewall
 from .mods import add_mod, list_mods, remove_mod
+from .query import query_server
 from .services import control_service
 
 
@@ -44,3 +46,13 @@ def cmd_mods(args: argparse.Namespace, load_with_ports) -> None:
             raise SystemExit("mods remove requires --id")
         remove_mod(config_path, config, args.instance, args.id)
 
+
+def cmd_query(args: argparse.Namespace, one) -> None:
+    _, _, instance = one(args, "query")
+    host = args.host or instance.get("server", {}).get("publicAddress") or "127.0.0.1"
+    query_server(instance, host, args.timeout)
+
+
+def cmd_deploy(args: argparse.Namespace, one) -> None:
+    config_path, config, instance = one(args, "deploy")
+    deploy_instance(config_path, config, instance, args.apply)

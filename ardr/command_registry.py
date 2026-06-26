@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 from . import commands as c
+from . import config_commands as cc
 
 
 def dispatch_table() -> dict[str, callable]:
     return {
-        "init": c.cmd_init,
-        "configure": c.cmd_configure,
-        "validate": c.cmd_validate,
+        "init": cc.cmd_init,
+        "configure": cc.cmd_configure,
+        "validate": cc.cmd_validate,
         "render": c.cmd_render,
         "install": c.cmd_install,
         "update": c.cmd_update,
@@ -19,6 +20,7 @@ def dispatch_table() -> dict[str, callable]:
         "debug": c.cmd_debug,
         "status": c.cmd_status,
         "info": c.cmd_info,
+        "query": c.cmd_query,
         "logs": c.cmd_logs,
         "ports": c.cmd_ports,
         "service": c.cmd_service,
@@ -31,5 +33,6 @@ def dispatch_table() -> dict[str, callable]:
         "linuxgsm": c.cmd_linuxgsm,
         "doctor": c.cmd_doctor,
         "linux-user": c.cmd_linux_user,
+        "deploy": c.cmd_deploy,
         "menu": c.cmd_menu,
     }

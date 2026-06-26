@@ -28,6 +28,7 @@ def interactive_loop(args: argparse.Namespace, dispatch: dict[str, Action]) -> N
     actions = [
         ("status", "Show status", False, False),
         ("info", "Show instance info", True, False),
+        ("query", "Query live server", True, False),
         ("start", "Start server", True, False),
         ("stop", "Stop server", True, False),
         ("restart", "Restart server", True, False),
@@ -38,6 +39,7 @@ def interactive_loop(args: argparse.Namespace, dispatch: dict[str, Action]) -> N
         ("ports", "Show firewall ports", False, False),
         ("ports", "Auto-fix and save ports", False, True),
         ("doctor", "Run preflight doctor", False, False),
+        ("deploy", "Dry-run first deploy", True, False),
         ("firewall", "Show firewall apply commands", False, False),
         ("backup", "Create backup", False, False),
         ("linuxgsm", "Render LinuxGSM helper", False, False),
@@ -65,6 +67,8 @@ def interactive_loop(args: argparse.Namespace, dispatch: dict[str, Action]) -> N
             next_args.action = "apply"
         if command == "backup":
             next_args.action = "create"
+        if command == "deploy":
+            next_args.apply = False
         dispatch[command](next_args)
         _, config = load_config(args.config)
 
@@ -91,3 +95,6 @@ def _fill_defaults(args: argparse.Namespace) -> None:
     args.include_downloads = getattr(args, "include_downloads", False)
     args.archive = getattr(args, "archive", None)
     args.target = getattr(args, "target", ".")
+    args.host = getattr(args, "host", None)
+    args.timeout = getattr(args, "timeout", 3.0)
+    args.apply = getattr(args, "apply", False)

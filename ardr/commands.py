@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 from .battleye import append_rcon
-from .config import load_config, normalize_config_ports, sample_config, save_config, select_instances, validate_config
+from .config import load_config, normalize_config_ports, save_config, select_instances
 from .doctor import run_doctor
 from .info import show_info
 from .linux_setup import setup_linux_user
@@ -12,47 +12,15 @@ from .linuxgsm import render_linuxgsm
 from .management_commands import cmd_backup as run_backup
 from .management_commands import cmd_firewall as run_firewall
 from .management_commands import cmd_mods as run_mods
+from .management_commands import cmd_query as run_query
 from .management_commands import cmd_service as run_service
+from .management_commands import cmd_deploy as run_deploy
 from .menu import interactive_loop
 from .ops import install_instances, restart_instance, show_logs, show_ports, update_instances
-from .paths import norm_path
 from .processes import pause_instance, resume_instance, start_instance, stop_instance
 from .render import render_instances
 from .services import manage_windows_task, render_systemd
 from .status import print_status
-from .wizard import build_instance, prompt
-
-
-def cmd_init(args: argparse.Namespace) -> None:
-    path = norm_path(args.config)
-    instance_dir = path.parent / "instances"
-    if (path.exists() or instance_dir.exists()) and not args.force:
-        raise SystemExit(f"{path} already exists. Use --force to overwrite.")
-    config = sample_config()
-    normalize_config_ports(config)
-    save_config(path, config)
-    print(f"Created {path} and {instance_dir}/*.json")
-
-
-def cmd_configure(args: argparse.Namespace) -> None:
-    path = norm_path(args.config)
-    config = load_config(args.config)[1] if path.exists() else {"baseDir": "./deployments", "steamcmd": "steamcmd", "instanceDir": "instances", "instances": []}
-    config["baseDir"] = prompt("Base deploy directory", str(config.get("baseDir", "./deployments")))
-    config["steamcmd"] = prompt("SteamCMD command/path", str(config.get("steamcmd", "steamcmd")))
-    config.setdefault("instances", [])
-    _upsert_instance(config, args.instance)
-    normalize_config_ports(config)
-    save_config(path, config)
-    _print_validation(config)
-    print(f"Saved {path}")
-
-
-def cmd_validate(args: argparse.Namespace) -> None:
-    path, config = load_config(args.config)
-    if normalize_config_ports(config):
-        print("WARNING: config has missing or colliding ports. Run `ardr.py ports --fix` to save safe ports.")
-    _print_validation(config)
-    print("Config is valid.")
 
 def cmd_render(args: argparse.Namespace) -> None:
     config_path, config = _load_with_ports(args)
@@ -108,6 +76,10 @@ def cmd_info(args: argparse.Namespace) -> None:
     show_info(config_path, config, instance)
 
 
+def cmd_query(args: argparse.Namespace) -> None:
+    run_query(args, _one)
+
+
 def cmd_logs(args: argparse.Namespace) -> None:
     show_logs(*_one(args, "logs"), args.lines, args.follow, args.systemd)
 
@@ -121,7 +93,6 @@ def cmd_ports(args: argparse.Namespace) -> None:
     elif changed:
         print("WARNING: missing or colliding ports detected. Run `ardr.py ports --fix` to save safe ports.")
     show_ports(config, args.instance)
-
 
 def cmd_systemd(args: argparse.Namespace) -> None:
     render_systemd(*_load_with_ports(args), args.instance, args.action == "install")
@@ -147,10 +118,8 @@ def cmd_windows_task(args: argparse.Namespace) -> None:
 def cmd_battleye(args: argparse.Namespace) -> None:
     append_rcon(*_one(args, "battleye"), args.rcon_port, args.rcon_password)
 
-
 def cmd_linuxgsm(args: argparse.Namespace) -> None:
     render_linuxgsm(*_load_with_ports(args), args.instance)
-
 
 def cmd_menu(args: argparse.Namespace) -> None:
     from .command_registry import dispatch_table
@@ -168,22 +137,8 @@ def cmd_linux_user(args: argparse.Namespace) -> None:
     setup_linux_user(args.user, args.target, Path.cwd(), args.apply)
 
 
-def _upsert_instance(config: dict, instance_name: str | None) -> None:
-    if instance_name:
-        for index, instance in enumerate(config["instances"]):
-            if instance.get("name") == instance_name:
-                config["instances"][index] = build_instance(config, instance)
-                return
-    config["instances"].append(build_instance(config))
-
-
-def _print_validation(config: dict) -> None:
-    normalize_config_ports(config)
-    errors = validate_config(config)
-    if errors:
-        for error in errors:
-            print(f"ERROR: {error}", file=sys.stderr)
-        raise SystemExit(1)
+def cmd_deploy(args: argparse.Namespace) -> None:
+    run_deploy(args, _one)
 
 
 def _one(args: argparse.Namespace, command: str) -> tuple[Path, dict, dict]:

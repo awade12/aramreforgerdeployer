@@ -27,11 +27,9 @@ aramreforgerdeployer/
 3. Optionally move it to a non-root user with `sudo ./ardr.py linux-user --apply`.
 4. Run `./ardr.py configure` or edit `instances/*.json`.
 5. Run `./ardr.py doctor`.
-6. Run `./ardr.py install`.
-7. Open UDP ports from `./ardr.py ports`.
-8. Install systemd services with `sudo ./ardr.py systemd install --instance <name>`.
-9. Start with `sudo ./ardr.py service enable --instance <name>` and `sudo ./ardr.py service start --instance <name>`.
-10. Watch logs with `./ardr.py service logs --instance <name> --follow`.
+6. Preview deploy with `./ardr.py deploy --instance <name>`.
+7. Apply deploy with `sudo ./ardr.py deploy --instance <name> --apply`.
+8. Watch logs with `./ardr.py service logs --instance <name> --follow`.
 
 ## Windows Checklist
 
@@ -57,6 +55,7 @@ For a single summary view of a server:
 
 ```bash
 ./ardr.py info --instance reforger-1
+./ardr.py query --instance reforger-1
 ```
 
 ## Preflight Doctor
