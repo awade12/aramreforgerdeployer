@@ -24,6 +24,19 @@ def quote(value: str | Path) -> str:
     return "'" + text.replace("'", "'\"'\"'") + "'"
 
 
-def run_checked(cmd: list[str], cwd: Path | None = None) -> None:
+def run_checked(cmd: list[str], cwd: Path | None = None, *, interrupt_ok: bool = False) -> None:
     print("+ " + " ".join(quote(part) for part in cmd))
-    subprocess.run(cmd, cwd=str(cwd) if cwd else None, check=True)
+    try:
+        subprocess.run(cmd, cwd=str(cwd) if cwd else None, check=True)
+    except KeyboardInterrupt:
+        if interrupt_ok:
+            raise SystemExit(0) from None
+        raise
+    except subprocess.CalledProcessError as exc:
+        if interrupt_ok and exc.returncode in {130, -2, 143}:
+            raise SystemExit(0) from None
+        raise
+
+
+def run_follow(cmd: list[str], cwd: Path | None = None) -> None:
+    run_checked(cmd, cwd, interrupt_ok=True)

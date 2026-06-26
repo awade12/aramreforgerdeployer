@@ -9,7 +9,7 @@ from typing import Any
 
 from ..config import select_instances
 from ..core.paths import generated_dir, install_dir
-from ..core.platforming import is_windows, run_checked
+from ..core.platforming import is_windows, run_checked, run_follow
 from ..server.render import render_instances, render_start_script
 
 
@@ -84,7 +84,8 @@ def control_service(instance: dict[str, Any], action: str, lines: int = 80, foll
     name = service_name(instance)
     if action == "logs":
         cmd = ["journalctl", "-u", name, "-n", str(lines)]
-        run_checked(cmd + (["-f"] if follow else []))
+        runner = run_follow if follow else run_checked
+        runner(cmd + (["-f"] if follow else []))
     elif action in {"start", "stop", "restart", "status", "enable", "disable"}:
         run_checked(["systemctl", action, name])
     else:

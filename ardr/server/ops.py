@@ -6,7 +6,7 @@ from typing import Any
 
 from ..config import select_instances
 from ..core.paths import install_dir, profile_dir
-from ..core.platforming import executable_name, is_windows, run_checked
+from ..core.platforming import executable_name, is_windows, run_checked, run_follow
 from ..core.terminal import commands, heading, section, table
 from .processes import process_running, read_pid, start_instance, stop_instance
 from .render import render_instances, steamcmd_command
@@ -73,9 +73,10 @@ def show_ports(config: dict[str, Any], instance_name: str | None) -> None:
 
 
 def show_logs(config_path: Path, config: dict[str, Any], instance: dict[str, Any], lines: int, follow: bool, systemd: bool) -> None:
+    runner = run_follow if follow else run_checked
     if systemd:
         cmd = ["journalctl", "-u", f"ardr-{instance['name']}.service", "-n", str(lines)]
-        run_checked(cmd + (["-f"] if follow else []))
+        runner(cmd + (["-f"] if follow else []))
         return
     profile = profile_dir(config_path, instance)
     heading("Logs", str(profile))
@@ -84,4 +85,4 @@ def show_logs(config_path: Path, config: dict[str, Any], instance: dict[str, Any
         print("  No .log files found yet. If using systemd, try `reforger tail --systemd`.")
         return
     cmd = ["tail", "-n", str(lines)]
-    run_checked(cmd + (["-f"] if follow else []) + [str(logs[0])])
+    runner(cmd + (["-f"] if follow else []) + [str(logs[0])])
