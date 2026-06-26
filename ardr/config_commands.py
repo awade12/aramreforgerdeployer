@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 
-from .config import load_config, normalize_config_ports, sample_config, save_config, validate_config
+from .config import load_config, normalize_config_ports, resolve_instance_name, sample_config, save_config, select_instances, validate_config
 from .paths import norm_path
 from .wizard import build_instance, prompt
 
@@ -24,11 +24,28 @@ def cmd_configure(args: argparse.Namespace) -> None:
     config["baseDir"] = prompt("Base deploy directory", str(config.get("baseDir", "./deployments")))
     config["steamcmd"] = prompt("SteamCMD command/path", str(config.get("steamcmd", "steamcmd")))
     config.setdefault("instances", [])
-    _upsert_instance(config, args.instance)
+    _upsert_instance(config, _arg_instance(args))
     normalize_config_ports(config)
     save_config(path, config)
     _print_validation(config)
     print(f"Saved {path}")
+
+
+def cmd_default(args: argparse.Namespace) -> None:
+    path, config = load_config(args.config)
+    name = _arg_instance(args)
+    if not name:
+        current = str(config.get("defaultInstance", "")).strip()
+        if current:
+            print(f"Default server: {current}")
+            return
+        resolved = resolve_instance_name(config, None, "default")
+        print(f"Default server: {resolved}")
+        return
+    select_instances(config, name)
+    config["defaultInstance"] = name
+    save_config(path, config)
+    print(f"Default server set to {name}")
 
 
 def cmd_validate(args: argparse.Namespace) -> None:
@@ -56,3 +73,6 @@ def _print_validation(config: dict) -> None:
             print(f"ERROR: {error}")
         raise SystemExit(1)
 
+
+def _arg_instance(args: argparse.Namespace) -> str | None:
+    return getattr(args, "instance", None) or getattr(args, "instance_name", None)

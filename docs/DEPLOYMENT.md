@@ -27,11 +27,11 @@ aramreforgerdeployer/
 2. Install the deployer with `scripts/install-linux.sh`.
 3. Use the installed `reforger` command for deployment and operations.
 4. Optionally move it to a non-root user with `sudo reforger linux-user --apply`.
-5. Run `reforger configure` or edit `instances/*.json`.
-6. Run `reforger doctor`.
-7. Preview deploy with `reforger deploy --instance <name>`.
-8. Apply deploy with `sudo reforger deploy --instance <name> --apply`.
-9. Watch logs with `reforger service logs --instance <name> --follow`.
+5. Run `reforger setup`, or edit `instances/*.json`.
+6. Preview deploy with `reforger launch <name>`.
+7. Apply deploy with `sudo reforger launch <name> --apply`.
+8. Set a default with `reforger default <name>`.
+9. Watch logs with `reforger tail`.
 
 ## Windows Checklist
 
@@ -39,7 +39,7 @@ aramreforgerdeployer/
 2. Run PowerShell as Administrator.
 3. Run `.\scripts\install-windows.ps1`.
 4. Open a new terminal if PowerShell does not find `reforger` immediately.
-5. Run `reforger configure` or edit `instances\*.json`.
+5. Run `reforger setup` or edit `instances\*.json`.
 6. Run `reforger install`.
 7. Open UDP ports from `reforger ports`.
 8. Install startup tasks with `reforger windows-task install`.
@@ -57,8 +57,8 @@ The menu gives an easy way to run status, start, stop, restart, pause, resume, u
 For a single summary view of a server:
 
 ```bash
-reforger info --instance reforger-1
-reforger query --instance reforger-1
+reforger info reforger-1
+reforger query reforger-1
 ```
 
 ## Preflight Doctor
@@ -66,10 +66,11 @@ reforger query --instance reforger-1
 Run:
 
 ```bash
-reforger doctor
+reforger check
+reforger fix
 ```
 
-It checks Python, SteamCMD availability, config validity, disk space, whether UDP ports can bind locally, expected server executables, local firewall hints, and reminds you that VPS provider firewall/security groups must also be opened.
+`check` validates config, prints port guidance, checks Python, SteamCMD availability, disk space, whether UDP ports can bind locally, expected server executables, local firewall hints, and reminds you that VPS provider firewall/security groups must also be opened. `fix` also repairs safe port assignments before checking.
 
 ## Non-Root Linux User
 
@@ -92,20 +93,20 @@ This creates the `armar` user if missing, copies the deployer to `/opt/ardr`, ex
 ## Lifecycle Commands
 
 ```bash
-sudo reforger systemd install --instance reforger-1
-sudo reforger service enable --instance reforger-1
-sudo reforger service start --instance reforger-1
-sudo reforger service restart --instance reforger-1
-sudo reforger service stop --instance reforger-1
-reforger service logs --instance reforger-1 --follow
-reforger pause --instance reforger-1
-reforger resume --instance reforger-1
+reforger default reforger-1
+reforger status
+reforger start
+reforger stop
+reforger restart
+reforger tail
+reforger pause
+reforger resume
 reforger update
-reforger update --instance reforger-1 --no-restart
-reforger debug --instance reforger-1
+reforger update reforger-1 --no-restart
+reforger debug reforger-1
 ```
 
-Use `reforger start --instance reforger-1` only as a quick manual smoke test on VPS hosts. The standard path is systemd.
+After a service is installed, `start`, `stop`, `restart`, and `tail` automatically use systemd when available. Without a service, they use direct process mode for local smoke tests.
 
 `update` stops and restarts only servers that Reforger knows were already running. Add `--start-stopped` when you want updated stopped instances to start too.
 
@@ -113,7 +114,7 @@ Service controls, firewall apply, backups, and mods are covered in [OPERATIONS.m
 
 ## Adding Another Server
 
-Run `reforger configure`, or copy an existing `instances/*.json` file and change:
+Run `reforger configure new-name`, or copy an existing `instances/*.json` file and change:
 
 - `name`
 - `port`
@@ -128,7 +129,7 @@ Then run:
 reforger validate
 reforger ports --fix
 reforger render
-reforger install --instance new-name
+reforger install new-name
 ```
 
 ## Stable vs Experimental

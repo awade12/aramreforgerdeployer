@@ -21,7 +21,8 @@ instances/
 {
   "baseDir": "./deployments",
   "steamcmd": "steamcmd",
-  "instanceDir": "instances"
+  "instanceDir": "instances",
+  "defaultInstance": "reforger-1"
 }
 ```
 
@@ -63,6 +64,19 @@ Save each server as `instances/<name>.json`.
 - `mods`: Workshop mods passed into the generated server config.
 
 Every instance needs unique `port` and `queryPort` values.
+
+## Default Server
+
+Set a default server to make daily commands shorter:
+
+```bash
+reforger default reforger-1
+reforger status
+reforger restart
+reforger tail
+```
+
+Without a default, commands such as `restart` and `tail` will ask you to name a server when multiple instances are configured.
 
 ## Automatic Ports
 

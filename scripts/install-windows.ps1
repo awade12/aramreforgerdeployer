@@ -53,7 +53,7 @@ if (-not (($UserPath -split ";") -contains $BinDir)) {
 
 Write-Host ""
 Write-Host "Next steps:"
-Write-Host "  1. Edit $Root\deployer.json for names, admin password, ports, and scenarios."
+Write-Host "  1. Run: reforger setup"
 Write-Host "  2. Run: reforger install"
-Write-Host "  3. Run one server: reforger start --instance reforger-1"
+Write-Host "  3. Run one server: reforger start reforger-1"
 Write-Host "  4. Show firewall rules: reforger ports"

@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 from .battleye import append_rcon
-from .config import load_config, normalize_config_ports, save_config, select_instances
+from .config import load_config, normalize_config_ports, resolve_instance_name, save_config, select_instances, validate_config
 from .doctor import run_doctor
 from .info import show_info
 from .linux_setup import setup_linux_user
@@ -19,37 +19,48 @@ from .menu import interactive_loop
 from .ops import install_instances, restart_instance, show_logs, show_ports, update_instances
 from .processes import pause_instance, resume_instance, start_instance, stop_instance
 from .render import render_instances
-from .services import manage_windows_task, render_systemd
+from .services import control_service, manage_windows_task, render_systemd, service_available
 from .status import print_status
 from .web import serve_web
 
 def cmd_render(args: argparse.Namespace) -> None:
     config_path, config = _load_with_ports(args)
-    render_instances(config_path, config, args.instance)
+    render_instances(config_path, config, _many_instance_name(args))
 
 
 def cmd_install(args: argparse.Namespace) -> None:
     config_path, config = _load_with_ports(args)
-    install_instances(config_path, config, args.instance)
+    install_instances(config_path, config, _many_instance_name(args))
 
 
 def cmd_update(args: argparse.Namespace) -> None:
     config_path, config = _load_with_ports(args)
-    update_instances(config_path, config, args.instance, args.restart, args.start_stopped)
+    update_instances(config_path, config, _many_instance_name(args), args.restart, args.start_stopped)
 
 
 def cmd_start(args: argparse.Namespace) -> None:
     config_path, config, instance = _one(args, "start")
-    render_instances(config_path, config, args.instance)
+    if service_available(instance):
+        control_service(instance, "start")
+        return
+    render_instances(config_path, config, instance["name"])
     start_instance(config_path, config, instance)
 
 
 def cmd_stop(args: argparse.Namespace) -> None:
-    stop_instance(*_one(args, "stop"))
+    config_path, config, instance = _one(args, "stop")
+    if service_available(instance):
+        control_service(instance, "stop")
+        return
+    stop_instance(config_path, config, instance)
 
 
 def cmd_restart(args: argparse.Namespace) -> None:
-    restart_instance(*_one(args, "restart"), float(args.wait))
+    config_path, config, instance = _one(args, "restart")
+    if service_available(instance):
+        control_service(instance, "restart")
+        return
+    restart_instance(config_path, config, instance, float(args.wait))
 
 
 def cmd_pause(args: argparse.Namespace) -> None:
@@ -62,13 +73,13 @@ def cmd_resume(args: argparse.Namespace) -> None:
 
 def cmd_debug(args: argparse.Namespace) -> None:
     config_path, config, instance = _one(args, "debug")
-    render_instances(config_path, config, args.instance)
+    render_instances(config_path, config, instance["name"])
     start_instance(config_path, config, instance, foreground=True)
 
 
 def cmd_status(args: argparse.Namespace) -> None:
     config_path, config = _load_with_ports(args)
-    for instance in select_instances(config, args.instance):
+    for instance in select_instances(config, _many_instance_name(args)):
         print_status(config_path, config, instance)
 
 
@@ -82,7 +93,11 @@ def cmd_query(args: argparse.Namespace) -> None:
 
 
 def cmd_logs(args: argparse.Namespace) -> None:
-    show_logs(*_one(args, "logs"), args.lines, args.follow, args.systemd)
+    config_path, config, instance = _one(args, "logs")
+    if args.systemd or service_available(instance):
+        control_service(instance, "logs", args.lines, args.follow)
+        return
+    show_logs(config_path, config, instance, args.lines, args.follow, False)
 
 
 def cmd_ports(args: argparse.Namespace) -> None:
@@ -93,10 +108,10 @@ def cmd_ports(args: argparse.Namespace) -> None:
         print("Ports checked and saved." if changed else "Ports already safe.")
     elif changed:
         print("WARNING: missing or colliding ports detected. Run `reforger ports --fix` to save safe ports.")
-    show_ports(config, args.instance)
+    show_ports(config, _many_instance_name(args))
 
 def cmd_systemd(args: argparse.Namespace) -> None:
-    render_systemd(*_load_with_ports(args), args.instance, args.action == "install")
+    render_systemd(*_load_with_ports(args), _many_instance_name(args), args.action == "install")
 
 
 def cmd_service(args: argparse.Namespace) -> None:
@@ -113,7 +128,7 @@ def cmd_mods(args: argparse.Namespace) -> None:
 
 
 def cmd_windows_task(args: argparse.Namespace) -> None:
-    manage_windows_task(*_load_with_ports(args), args.instance, args.action == "install")
+    manage_windows_task(*_load_with_ports(args), _many_instance_name(args), args.action == "install")
 
 
 def cmd_battleye(args: argparse.Namespace) -> None:
@@ -142,15 +157,43 @@ def cmd_deploy(args: argparse.Namespace) -> None:
     run_deploy(args, _one)
 
 
+def cmd_check(args: argparse.Namespace) -> None:
+    config_path, config = _load_with_ports(args)
+    _print_validation(config)
+    show_ports(config, _many_instance_name(args))
+    failures = run_doctor(config_path, config)
+    if failures:
+        raise SystemExit(1)
+    print("Ready.")
+
+
+def cmd_fix(args: argparse.Namespace) -> None:
+    config_path, config = load_config(args.config)
+    changed = normalize_config_ports(config)
+    save_config(config_path, config)
+    print("Ports fixed and saved." if changed else "Ports already safe.")
+    _print_validation(config)
+    failures = run_doctor(config_path, config)
+    if failures:
+        raise SystemExit(1)
+    print("No fixable issues found.")
+
+
+def cmd_setup(args: argparse.Namespace) -> None:
+    from .config_commands import cmd_configure
+
+    cmd_configure(args)
+    cmd_fix(args)
+
+
 def cmd_web(args: argparse.Namespace) -> None:
     serve_web(args.config, args.host, args.port, args.password, args.auth_file)
 
 
 def _one(args: argparse.Namespace, command: str) -> tuple[Path, dict, dict]:
-    if not args.instance:
-        raise SystemExit(f"{command} requires --instance")
     cfg_path, config = _load_with_ports(args)
-    return cfg_path, config, select_instances(config, args.instance)[0]
+    name = resolve_instance_name(config, _arg_instance(args), _canonical_command(command))
+    return cfg_path, config, select_instances(config, name)[0]
 
 
 def _load_with_ports(args: argparse.Namespace) -> tuple[Path, dict]:
@@ -158,3 +201,24 @@ def _load_with_ports(args: argparse.Namespace) -> tuple[Path, dict]:
     if normalize_config_ports(config):
         save_config(config_path, config)
     return config_path, config
+
+
+def _arg_instance(args: argparse.Namespace) -> str | None:
+    return getattr(args, "instance", None) or getattr(args, "instance_name", None)
+
+
+def _many_instance_name(args: argparse.Namespace) -> str | None:
+    return _arg_instance(args)
+
+
+def _canonical_command(command: str) -> str:
+    return {"up": "start", "down": "stop", "reload": "restart", "tail": "logs", "launch": "deploy"}.get(command, command)
+
+
+def _print_validation(config: dict) -> None:
+    errors = validate_config(config)
+    if errors:
+        for error in errors:
+            print(f"ERROR: {error}")
+        raise SystemExit(1)
+    print("Config is valid.")

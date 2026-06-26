@@ -10,8 +10,7 @@ from .services import systemd_state
 def print_status(config_path: Path, config: dict[str, Any], instance: dict[str, Any]) -> None:
     cleanup_dead_pid(config_path, config, instance)
     pid = read_pid(config_path, config, instance)
-    state = "running" if process_running(pid) else "stopped"
-    detail = f"pid {pid}" if pid else "no pid"
     systemd = systemd_state(instance)
+    state = "running" if process_running(pid) or systemd == "active" else "stopped"
+    detail = f"pid {pid}" if pid else "systemd active" if systemd == "active" else "no pid"
     print(f"{instance['name']}: {state} ({detail}{', systemd ' + systemd if systemd else ''})")
-

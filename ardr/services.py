@@ -64,9 +64,23 @@ def systemd_state(instance: dict[str, Any]) -> str:
     return result.stdout.strip()
 
 
+def service_available(instance: dict[str, Any]) -> bool:
+    if is_windows() or not shutil.which("systemctl"):
+        return False
+    result = subprocess.run(
+        ["systemctl", "status", service_name(instance)],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    return result.returncode in {0, 3}
+
+
 def control_service(instance: dict[str, Any], action: str, lines: int = 80, follow: bool = False) -> None:
     if is_windows():
         raise SystemExit("service controls are only available for systemd on Linux.")
+    if not shutil.which("systemctl"):
+        raise SystemExit("systemctl was not found. Service controls are only available on Linux/systemd hosts.")
     name = service_name(instance)
     if action == "logs":
         cmd = ["journalctl", "-u", name, "-n", str(lines)]
@@ -85,7 +99,7 @@ def manage_windows_task(config_path: Path, config: dict[str, Any], instance_name
     for instance in select_instances(config, instance_name):
         task_name = f"Reforger {instance['name']}"
         if install:
-            task_cmd = f'"{sys.executable}" "{ardr}" start --config "{config_path}" --instance "{instance["name"]}"'
+            task_cmd = f'"{sys.executable}" "{ardr}" --config "{config_path}" start --instance "{instance["name"]}"'
             run_checked(["schtasks", "/Create", "/TN", task_name, "/SC", "ONSTART", "/RL", "HIGHEST", "/TR", task_cmd, "/F"])
         else:
             run_checked(["schtasks", "/Delete", "/TN", task_name, "/F"])

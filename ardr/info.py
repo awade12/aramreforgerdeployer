@@ -41,12 +41,12 @@ def show_info(config_path: Path, config: dict[str, Any], instance: dict[str, Any
     print(f"  PID file: {pid_file(config_path, config, instance)}")
     print()
     print("Useful Commands")
-    print(f"  reforger service status --instance {name}")
-    print(f"  reforger service logs --instance {name} --follow")
-    print(f"  sudo reforger service restart --instance {name}")
-    print(f"  reforger ports --instance {name}")
-    print(f"  reforger mods list --instance {name}")
-    print(f"  reforger backup create --instance {name}")
+    print(f"  reforger status {name}")
+    print(f"  reforger tail {name}")
+    print(f"  reforger restart {name}")
+    print(f"  reforger ports {name}")
+    print(f"  reforger mods list {name}")
+    print(f"  reforger backup create {name}")
     print()
     print("Launch Command")
     print("  " + " ".join(quote(part) for part in start_command(config_path, config, instance)))
@@ -59,4 +59,3 @@ def _instance_file(config_path: Path, config: dict[str, Any], name: str) -> Path
     raw = Path(str(config.get("instanceDir", "instances")))
     instance_dir = raw if raw.is_absolute() else config_path.parent / raw
     return instance_dir / f"{name}.json"
-

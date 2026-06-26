@@ -1,6 +1,7 @@
 {
   "baseDir": "./deployments",
   "steamcmd": "steamcmd",
+  "defaultInstance": "reforger-1",
   "instances": [
     {
       "name": "reforger-1",

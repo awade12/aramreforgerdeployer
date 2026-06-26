@@ -61,7 +61,7 @@ reforger render
 
 echo
 echo "Next steps:"
-echo "  1. Edit $ROOT/deployer.json for names, admin password, ports, and scenarios."
-echo "  2. Run: reforger install"
-echo "  3. Run one server: reforger start --instance reforger-1"
-echo "  4. Show firewall rules: reforger ports"
+echo "  1. Run: reforger setup"
+echo "  2. Preview deploy: reforger launch reforger-1"
+echo "  3. Apply deploy: sudo reforger launch reforger-1 --apply"
+echo "  4. Watch logs: reforger tail reforger-1"

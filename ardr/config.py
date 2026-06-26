@@ -13,8 +13,11 @@ def load_config(path: str) -> tuple[Path, dict[str, Any]]:
     cfg_path = norm_path(path)
     if not cfg_path.exists():
         raise SystemExit(f"Config file not found: {cfg_path}. Run `reforger init` first.")
-    with cfg_path.open("r", encoding="utf-8") as fh:
-        config = json.load(fh)
+    try:
+        with cfg_path.open("r", encoding="utf-8") as fh:
+            config = json.load(fh)
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"Config file is not valid JSON: {cfg_path}\n{exc}") from exc
     config["instances"] = _load_instance_files(cfg_path, config)
     return cfg_path, config
 
@@ -23,8 +26,11 @@ def load_root_config(path: str) -> tuple[Path, dict[str, Any]]:
     cfg_path = norm_path(path)
     if not cfg_path.exists():
         raise SystemExit(f"Config file not found: {cfg_path}. Run `reforger init` first.")
-    with cfg_path.open("r", encoding="utf-8") as fh:
-        return cfg_path, json.load(fh)
+    try:
+        with cfg_path.open("r", encoding="utf-8") as fh:
+            return cfg_path, json.load(fh)
+    except json.JSONDecodeError as exc:
+        raise SystemExit(f"Config file is not valid JSON: {cfg_path}\n{exc}") from exc
 
 
 def write_json(path: Path, data: dict[str, Any]) -> None:
@@ -67,8 +73,32 @@ def select_instances(config: dict[str, Any], name: str | None) -> list[dict[str,
         return instances
     selected = [item for item in instances if item.get("name") == name]
     if not selected:
-        raise SystemExit(f"Unknown instance: {name}")
+        raise SystemExit(_unknown_instance_message(config, name))
     return selected
+
+
+def resolve_instance_name(config: dict[str, Any], name: str | None, command: str) -> str:
+    instances = config.get("instances", [])
+    if not isinstance(instances, list) or not instances:
+        raise SystemExit("No instances configured. Run `reforger configure` to add one.")
+    if name:
+        select_instances(config, name)
+        return name
+    default = str(config.get("defaultInstance", "")).strip()
+    if default:
+        select_instances(config, default)
+        return default
+    if len(instances) == 1:
+        return str(instances[0]["name"])
+    names = "\n".join(f"  {index}. {instance['name']}" for index, instance in enumerate(instances, start=1))
+    raise SystemExit(
+        f"No instance selected for `{command}`.\n\n"
+        f"Configured servers:\n{names}\n\n"
+        f"Run:\n"
+        f"  reforger {command} {instances[0]['name']}\n\n"
+        f"Or set a default:\n"
+        f"  reforger default {instances[0]['name']}"
+    )
 
 
 def sample_config() -> dict[str, Any]:
@@ -76,6 +106,7 @@ def sample_config() -> dict[str, Any]:
         "baseDir": "./deployments",
         "steamcmd": "steamcmd",
         "instanceDir": "instances",
+        "defaultInstance": "reforger-1",
         "instances": [
             _sample_instance("reforger-1", 2001, 17777),
             _sample_instance("reforger-2", 2003, 17779),
@@ -138,8 +169,11 @@ def _load_instance_files(config_path: Path, config: dict[str, Any]) -> list[dict
     if not instance_dir.exists():
         return instances
     for path in sorted(instance_dir.glob("*.json")):
-        with path.open("r", encoding="utf-8") as fh:
-            instance = json.load(fh)
+        try:
+            with path.open("r", encoding="utf-8") as fh:
+                instance = json.load(fh)
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"Instance file is not valid JSON: {path}\n{exc}") from exc
         instance.setdefault("name", path.stem)
         instances = [item for item in instances if item.get("name") != instance.get("name")]
         instances.append(instance)
@@ -171,3 +205,11 @@ def _validate_max_fps(instance: dict[str, Any], name: str, errors: list[str]) ->
             errors.append(f"{name} maxFPS must be positive.")
     except ValueError:
         errors.append(f"{name} maxFPS must be numeric.")
+
+
+def _unknown_instance_message(config: dict[str, Any], name: str) -> str:
+    instances = config.get("instances", [])
+    if not isinstance(instances, list) or not instances:
+        return f"Unknown instance: {name}"
+    choices = "\n".join(f"  - {instance['name']}" for instance in instances)
+    return f"Unknown instance: {name}\n\nConfigured servers:\n{choices}"

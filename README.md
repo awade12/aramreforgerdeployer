@@ -40,20 +40,17 @@ The installer adds a `reforger` command to your PATH.
 Then run:
 
 ```bash
-reforger configure
-reforger doctor
-reforger install
-sudo reforger systemd install --instance reforger-1
-sudo reforger service enable --instance reforger-1
-sudo reforger service start --instance reforger-1
-reforger service logs --instance reforger-1 --follow
+reforger setup
+reforger launch reforger-1
+sudo reforger launch reforger-1 --apply
+reforger tail reforger-1
 ```
 
 ```bash
 reforger menu
 ```
 
-Use `reforger start --instance reforger-1` only for a quick manual smoke test before installing the service.
+After the service is installed, `reforger start`, `reforger stop`, `reforger restart`, and `reforger tail` automatically use systemd when available.
 
 ## Quick Start: Windows
 
@@ -69,9 +66,9 @@ The installer adds a `reforger` command to your user PATH. Open a new terminal i
 Then run:
 
 ```powershell
-reforger configure
+reforger setup
 reforger install
-reforger start --instance reforger-1
+reforger start reforger-1
 ```
 
 ```powershell
@@ -90,7 +87,7 @@ Add or edit servers with prompts:
 
 ```bash
 reforger configure
-reforger configure --instance reforger-1
+reforger configure reforger-1
 ```
 
 Each server is saved as its own file in `instances/`. Reforger can assign safe ports automatically.
@@ -107,47 +104,58 @@ reforger ports --fix
 ## Common Commands
 
 ```bash
-reforger init                         # create starter deployer.json
-reforger configure                    # guided add/edit wizard
-reforger menu                         # interactive operator menu
-reforger web --host 127.0.0.1 --port 8080
-reforger info --instance reforger-1   # one-view instance details
-reforger query --instance reforger-1  # live server query
-reforger validate                     # check config and port collisions
-reforger ports --fix                  # auto-assign safe ports and save instance files
-reforger doctor                       # preflight host/config checks
-reforger linux-user                   # dry-run non-root Linux setup
+reforger setup                       # guided first-time setup, safe ports, checks
+reforger launch reforger-1           # preview first deploy
+sudo reforger launch reforger-1 --apply
+reforger default reforger-1          # make instance optional for daily commands
+reforger status
+reforger info
+reforger query
+reforger start
+reforger stop
+reforger restart
+reforger tail
+reforger update
+reforger backup create
+reforger mods list
+reforger check                       # validate, ports, doctor
+reforger fix                         # fix safe ports, validate, doctor
+reforger open --host 127.0.0.1 --port 8080
+
+# Advanced commands are still available:
+reforger init
+reforger configure
+reforger menu
+reforger validate
+reforger ports --fix
+reforger doctor
+reforger linux-user
 reforger firewall apply --dry-run
 sudo reforger firewall apply
-reforger render                       # generate server JSON and start scripts
-reforger install                      # install/update all instances with SteamCMD
-reforger install --instance reforger-1
+reforger render
+reforger install
+reforger install reforger-1
 sudo reforger systemd install --instance reforger-1
 sudo reforger service enable --instance reforger-1
 sudo reforger service start --instance reforger-1
-reforger deploy --instance reforger-1 # dry-run first deploy
-reforger update                       # update and restart servers that were running
-reforger update --instance reforger-1 --no-restart
-reforger start --instance reforger-1  # manual smoke test only on VPS
-reforger stop --instance reforger-1
-reforger restart --instance reforger-1
-reforger pause --instance reforger-1
-reforger resume --instance reforger-1
-reforger status
-reforger logs --instance reforger-1 --follow
-reforger debug --instance reforger-1
+reforger deploy reforger-1
+reforger update reforger-1 --no-restart
+reforger pause reforger-1
+reforger resume reforger-1
+reforger logs reforger-1 --follow
+reforger debug reforger-1
 reforger service restart --instance reforger-1
 reforger service logs --instance reforger-1 --follow
-reforger mods add --instance reforger-1 --id MOD_ID --name "Mod Name"
-reforger mods list --instance reforger-1
-reforger backup create --instance reforger-1
+reforger mods add reforger-1 --id MOD_ID --name "Mod Name"
+reforger mods list reforger-1
+reforger backup create reforger-1
 reforger ports
 reforger linuxgsm
 reforger battleye --instance reforger-1 --rcon-port 5678 --rcon-password "change-me"
 ```
 
 `debug` runs the server in the foreground so you can see output directly. Use `logs --systemd --follow` when the instance is running under a generated Linux service.
-For VPS hosting, prefer `systemd install` plus `service start` over direct `start`.
+For VPS hosting, install the service with `launch --apply`; daily `start`, `stop`, `restart`, and `tail` will use it automatically.
 More operation commands are in [docs/OPERATIONS.md](/Users/awade/Documents/aramreforgerdeployer/docs/OPERATIONS.md).
 
 ## Linux Service Workflow

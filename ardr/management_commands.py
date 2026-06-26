@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from .backup import create_backup, list_backups, restore_backup
+from .config import resolve_instance_name
 from .deploy import deploy_instance
 from .firewall import apply_firewall
 from .mods import add_mod, list_mods, remove_mod
@@ -23,8 +24,9 @@ def cmd_firewall(args: argparse.Namespace, load_with_ports) -> None:
 
 def cmd_backup(args: argparse.Namespace, load_with_ports) -> None:
     config_path, config = load_with_ports(args)
+    instance_name = _arg_instance(args)
     if args.action == "create":
-        create_backup(config_path, config, args.instance, args.include_downloads)
+        create_backup(config_path, config, instance_name, args.include_downloads)
     elif args.action == "list":
         list_backups(config_path, config)
     elif args.action == "restore":
@@ -35,16 +37,17 @@ def cmd_backup(args: argparse.Namespace, load_with_ports) -> None:
 
 def cmd_mods(args: argparse.Namespace, load_with_ports) -> None:
     config_path, config = load_with_ports(args)
+    instance_name = resolve_instance_name(config, _arg_instance(args), "mods")
     if args.action == "add":
         if not args.id:
             raise SystemExit("mods add requires --id")
-        add_mod(config_path, config, args.instance, args.id, args.name, args.version)
+        add_mod(config_path, config, instance_name, args.id, args.name, args.version)
     elif args.action == "list":
-        list_mods(config, args.instance)
+        list_mods(config, instance_name)
     elif args.action == "remove":
         if not args.id:
             raise SystemExit("mods remove requires --id")
-        remove_mod(config_path, config, args.instance, args.id)
+        remove_mod(config_path, config, instance_name, args.id)
 
 
 def cmd_query(args: argparse.Namespace, one) -> None:
@@ -56,3 +59,7 @@ def cmd_query(args: argparse.Namespace, one) -> None:
 def cmd_deploy(args: argparse.Namespace, one) -> None:
     config_path, config, instance = one(args, "deploy")
     deploy_instance(config_path, config, instance, args.apply)
+
+
+def _arg_instance(args: argparse.Namespace) -> str | None:
+    return getattr(args, "instance", None) or getattr(args, "instance_name", None)
