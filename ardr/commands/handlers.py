@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any
+
+from ..config import load_config, normalize_config_ports, save_config, select_instances
 from ..core.terminal import heading, table
 from ..platform.doctor import run_doctor
 from ..platform.linux_setup import setup_linux_user
@@ -16,7 +17,6 @@ from ..server.status import status_row
 from ..ui.menu import interactive_loop
 from ..web import serve_web
 from .helpers import load_with_ports, many_instance_name, one_instance, print_validation
-from .lifecycle import cmd_debug, cmd_logs, cmd_pause, cmd_restart, cmd_resume, cmd_start, cmd_stop
 from .management import cmd_backup as run_backup
 from .management import cmd_deploy as run_deploy
 from .management import cmd_firewall as run_firewall
