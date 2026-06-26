@@ -28,6 +28,7 @@ from .commands import (
     cmd_stop,
     cmd_systemd,
     cmd_update,
+    cmd_web,
     cmd_windows_task,
 )
 from .config_commands import cmd_configure, cmd_init, cmd_validate
@@ -42,6 +43,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_lifecycle(sub)
     add_platform(sub)
     add_management(sub)
+    add_web(sub)
     return parser
 
 
@@ -185,6 +187,14 @@ def add_deploy(sub: argparse._SubParsersAction) -> None:
     p.set_defaults(func=cmd_deploy)
 
 
+def add_web(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser("web", help="Run authenticated HTMX/Tailwind dashboard.")
+    p.add_argument("--host", default="127.0.0.1")
+    p.add_argument("--port", type=int, default=8080)
+    p.add_argument("--password")
+    p.add_argument("--auth-file", default=".ardr-web-auth.json")
+    p.set_defaults(func=cmd_web)
+
+
 def main() -> None:
-    args = build_parser().parse_args()
-    args.func(args)
+    (args := build_parser().parse_args()).func(args)

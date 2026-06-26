@@ -1,5 +1,15 @@
 # Operations
 
+## Web Dashboard
+
+```bash
+./ardr.py web --host 127.0.0.1 --port 8080
+./ardr.py web --host 0.0.0.0 --port 8080
+./ardr.py web --host 0.0.0.0 --port 8080 --password "change-this"
+```
+
+The first run generates a password and stores only a local hash in `.ardr-web-auth.json`. The dashboard uses HTMX and Tailwind, requires login, signs session cookies, and uses CSRF tokens on actions. For public use, put HTTPS in front of it with Caddy or another reverse proxy.
+
 ## One-View Info
 
 ```bash

@@ -5,8 +5,6 @@ A small, dependency-free deployment toolkit for running one or many Arma Reforge
 It uses the official dedicated-server Steam app IDs:
 
 - Stable server: `1874900` ([SteamDB](https://steamdb.info/app/1874900/))
-- Experimental server: `1890870` ([SteamDB](https://steamdb.info/app/1890870/))
-
 - Arma Reforger server config wiki: <https://community.bistudio.com/wiki/Arma_Reforger:Server_Config>
 - SteamCMD documentation: <https://developer.valvesoftware.com/wiki/SteamCMD>
 
@@ -23,6 +21,7 @@ It uses the official dedicated-server Steam app IDs:
 - Lifecycle commands: start, stop, restart, pause, resume, update, logs, debug.
 - Optional Linux `systemd` service files for auto-start and crash restart.
 - Service controls, firewall automation, backups, and mod helpers.
+- Authenticated HTMX/Tailwind web dashboard.
 - Optional Windows startup Scheduled Tasks.
 - LinuxGSM helper scripts and guidance.
 - Firewall command suggestions for required UDP ports.
@@ -107,6 +106,7 @@ Detailed config examples are in [docs/CONFIGURATION.md](/Users/awade/Documents/a
 ./ardr.py init                         # create starter deployer.json
 ./ardr.py configure                    # guided add/edit wizard
 ./ardr.py menu                         # interactive operator menu
+./ardr.py web --host 0.0.0.0 --port 8080
 ./ardr.py info --instance reforger-1   # one-view instance details
 ./ardr.py query --instance reforger-1  # live server query
 ./ardr.py validate                     # check config and port collisions

@@ -23,6 +23,9 @@ ardr/
   backup.py             backup and restore helpers
   firewall.py           local firewall automation
   mods.py               mod config helpers
+  web.py                authenticated dashboard server
+  web_auth.py           password/session helpers
+  web_views.py          HTMX/Tailwind views
   paths.py              deployment path helpers
   platforming.py        OS detection, quoting, command execution
   constants.py          app IDs and shared constants

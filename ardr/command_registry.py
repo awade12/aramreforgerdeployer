@@ -34,5 +34,6 @@ def dispatch_table() -> dict[str, callable]:
         "doctor": c.cmd_doctor,
         "linux-user": c.cmd_linux_user,
         "deploy": c.cmd_deploy,
+        "web": c.cmd_web,
         "menu": c.cmd_menu,
     }

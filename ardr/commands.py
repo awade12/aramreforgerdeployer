@@ -21,6 +21,7 @@ from .processes import pause_instance, resume_instance, start_instance, stop_ins
 from .render import render_instances
 from .services import manage_windows_task, render_systemd
 from .status import print_status
+from .web import serve_web
 
 def cmd_render(args: argparse.Namespace) -> None:
     config_path, config = _load_with_ports(args)
@@ -139,6 +140,10 @@ def cmd_linux_user(args: argparse.Namespace) -> None:
 
 def cmd_deploy(args: argparse.Namespace) -> None:
     run_deploy(args, _one)
+
+
+def cmd_web(args: argparse.Namespace) -> None:
+    serve_web(args.config, args.host, args.port, args.password, args.auth_file)
 
 
 def _one(args: argparse.Namespace, command: str) -> tuple[Path, dict, dict]:

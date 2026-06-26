@@ -6,3 +6,4 @@ tools/
 *.pid
 *.log
 __pycache__/
+.ardr-web-auth.json
