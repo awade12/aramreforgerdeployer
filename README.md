@@ -106,7 +106,7 @@ Detailed config examples are in [docs/CONFIGURATION.md](/Users/awade/Documents/a
 ./ardr.py init                         # create starter deployer.json
 ./ardr.py configure                    # guided add/edit wizard
 ./ardr.py menu                         # interactive operator menu
-./ardr.py web --host 0.0.0.0 --port 8080
+./ardr.py web --host 127.0.0.1 --port 8080
 ./ardr.py info --instance reforger-1   # one-view instance details
 ./ardr.py query --instance reforger-1  # live server query
 ./ardr.py validate                     # check config and port collisions

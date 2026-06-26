@@ -12,9 +12,10 @@ from .backup import create_backup
 from .config import load_config, normalize_config_ports, save_config, select_instances
 from .management_commands import cmd_query
 from .render import render_instances
-from .services import control_service, systemd_state
+from .services import control_service
 from .status import print_status
 from .web_auth import ensure_auth, make_csrf, make_session, valid_session, verify_password
+from .web_models import instance_details
 from .web_views import dashboard, instance_panel, login
 
 
@@ -70,21 +71,27 @@ def _handler(state: WebState):
             state.csrf[self._session()] = csrf
             return dashboard(instances, selected, csrf, self._panel(selected, csrf=csrf))
 
-        def _panel(self, selected: str | None, output: str = "", csrf: str | None = None) -> str:
+        def _panel(
+            self,
+            selected: str | None,
+            output: str = "",
+            csrf: str | None = None,
+            action: str = "",
+        ) -> str:
             config_path, config = _config()
             instance = select_instances(config, selected)[0]
-            status = _capture(lambda: print_status(config_path, config, instance)).strip()
             if not csrf:
                 csrf = state.csrf.get(self._session()) or make_csrf()
                 state.csrf[self._session()] = csrf
-            return instance_panel(instance, status, systemd_state(instance), csrf, output)
+            details = instance_details(config_path, config, instance)
+            return instance_panel(instance, details, csrf, output, action)
 
         def _action(self) -> str:
             form = self._form()
             instance = form.get("instance", [""])[0]
             action = form.get("action", [""])[0]
             output = _capture(lambda: _run_action(action, instance))
-            return self._panel(instance, output)
+            return self._panel(instance, output, action=action)
 
         def _add_mod(self) -> str:
             from .mods import add_mod
@@ -95,7 +102,7 @@ def _handler(state: WebState):
             mod_name = form.get("mod_name", [""])[0]
             config_path, config = _config()
             output = _capture(lambda: add_mod(config_path, config, instance_name, mod_id, mod_name, ""))
-            return self._panel(instance_name, output)
+            return self._panel(instance_name, output, action="add mod")
 
         def _login(self) -> None:
             password = self._form().get("password", [""])[0]
@@ -162,6 +169,12 @@ def _handler(state: WebState):
         elif action == "query":
             args = type("Args", (), {"instance": instance_name, "host": None, "timeout": 2.0})()
             cmd_query(args, lambda *_: (config_path, config, instance))
+        elif action == "logs":
+            control_service(instance, "logs", lines=80, follow=False)
+        elif action == "status":
+            print_status(config_path, config, instance)
+        else:
+            print(f"Unknown action: {action}")
 
     return Handler
 

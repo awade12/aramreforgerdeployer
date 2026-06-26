@@ -10,6 +10,16 @@
 
 The first run generates a password and stores only a local hash in `.ardr-web-auth.json`. The dashboard uses HTMX and Tailwind, requires login, signs session cookies, and uses CSRF tokens on actions. For public use, put HTTPS in front of it with Caddy or another reverse proxy.
 
+The instance panel shows runtime state, PID, systemd state, ports, scenario, executable presence, important paths, and a last-checked timestamp. Start, stop, restart, status, logs, backup, render, query, and mod-add actions all return a visible result banner plus an activity block with command output or errors.
+
+For safer remote access, bind to localhost and tunnel it:
+
+```bash
+ssh -L 8080:127.0.0.1:8080 ubuntu@YOUR_VPS_IP
+```
+
+Then open `http://127.0.0.1:8080` on your computer.
+
 ## One-View Info
 
 ```bash

@@ -25,6 +25,7 @@ ardr/
   mods.py               mod config helpers
   web.py                authenticated dashboard server
   web_auth.py           password/session helpers
+  web_models.py         dashboard state summaries
   web_views.py          HTMX/Tailwind views
   paths.py              deployment path helpers
   platforming.py        OS detection, quoting, command execution
