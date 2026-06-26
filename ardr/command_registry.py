@@ -18,6 +18,7 @@ def dispatch_table() -> dict[str, callable]:
         "resume": c.cmd_resume,
         "debug": c.cmd_debug,
         "status": c.cmd_status,
+        "info": c.cmd_info,
         "logs": c.cmd_logs,
         "ports": c.cmd_ports,
         "service": c.cmd_service,

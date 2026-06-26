@@ -1,5 +1,13 @@
 # Operations
 
+## One-View Info
+
+```bash
+./ardr.py info --instance reforger-1
+```
+
+This prints service state, connection hint, ports, important file paths, useful commands, and the rendered launch command.
+
 ## Service Controls
 
 After `sudo ./ardr.py systemd install`, use:
@@ -41,4 +49,3 @@ Backups include `deployer.json`, `instances/*.json`, profiles, and BattlEye conf
 ./ardr.py mods remove --instance reforger-1 --id MOD_ID
 ./ardr.py render --instance reforger-1
 ```
-

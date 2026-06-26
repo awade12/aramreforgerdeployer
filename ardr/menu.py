@@ -27,6 +27,7 @@ def interactive_loop(args: argparse.Namespace, dispatch: dict[str, Action]) -> N
     _, config = load_config(args.config)
     actions = [
         ("status", "Show status", False, False),
+        ("info", "Show instance info", True, False),
         ("start", "Start server", True, False),
         ("stop", "Stop server", True, False),
         ("restart", "Restart server", True, False),

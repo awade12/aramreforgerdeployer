@@ -6,6 +6,7 @@ from pathlib import Path
 from .battleye import append_rcon
 from .config import load_config, normalize_config_ports, sample_config, save_config, select_instances, validate_config
 from .doctor import run_doctor
+from .info import show_info
 from .linux_setup import setup_linux_user
 from .linuxgsm import render_linuxgsm
 from .management_commands import cmd_backup as run_backup
@@ -15,9 +16,10 @@ from .management_commands import cmd_service as run_service
 from .menu import interactive_loop
 from .ops import install_instances, restart_instance, show_logs, show_ports, update_instances
 from .paths import norm_path
-from .processes import cleanup_dead_pid, pause_instance, process_running, read_pid, resume_instance, start_instance, stop_instance
+from .processes import pause_instance, resume_instance, start_instance, stop_instance
 from .render import render_instances
-from .services import manage_windows_task, render_systemd, systemd_state
+from .services import manage_windows_task, render_systemd
+from .status import print_status
 from .wizard import build_instance, prompt
 
 
@@ -51,7 +53,6 @@ def cmd_validate(args: argparse.Namespace) -> None:
         print("WARNING: config has missing or colliding ports. Run `ardr.py ports --fix` to save safe ports.")
     _print_validation(config)
     print("Config is valid.")
-
 
 def cmd_render(args: argparse.Namespace) -> None:
     config_path, config = _load_with_ports(args)
@@ -99,12 +100,12 @@ def cmd_debug(args: argparse.Namespace) -> None:
 def cmd_status(args: argparse.Namespace) -> None:
     config_path, config = _load_with_ports(args)
     for instance in select_instances(config, args.instance):
-        cleanup_dead_pid(config_path, config, instance)
-        pid = read_pid(config_path, config, instance)
-        state = "running" if process_running(pid) else "stopped"
-        detail = f"pid {pid}" if pid else "no pid"
-        systemd = systemd_state(instance)
-        print(f"{instance['name']}: {state} ({detail}{', systemd ' + systemd if systemd else ''})")
+        print_status(config_path, config, instance)
+
+
+def cmd_info(args: argparse.Namespace) -> None:
+    config_path, config, instance = _one(args, "info")
+    show_info(config_path, config, instance)
 
 
 def cmd_logs(args: argparse.Namespace) -> None:

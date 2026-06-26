@@ -9,10 +9,8 @@ It uses the official dedicated-server Steam app IDs:
 
 Useful official/community references:
 
-- Arma Reforger server hosting wiki: <https://community.bistudio.com/wiki/Arma_Reforger:Server_Hosting>
 - Arma Reforger server config wiki: <https://community.bistudio.com/wiki/Arma_Reforger:Server_Config>
 - SteamCMD documentation: <https://developer.valvesoftware.com/wiki/SteamCMD>
-- LinuxGSM Arma Reforger server: <https://linuxgsm.com/servers/armarserver/>
 
 ## What This Gives You
 
@@ -24,11 +22,11 @@ Useful official/community references:
 - Interactive operator menu for common actions.
 - SteamCMD install/update for stable or experimental dedicated servers.
 - Per-instance server config and start-script generation.
-- Simple lifecycle commands: start, stop, restart, pause, resume, update, logs, debug.
+- Lifecycle commands: start, stop, restart, pause, resume, update, logs, debug.
 - Optional Linux `systemd` service files for auto-start and crash restart.
 - Service controls, firewall automation, backups, and mod helpers.
 - Optional Windows startup Scheduled Tasks.
-- LinuxGSM helper scripts and guidance for Linux admins who want its console, monitor, cron, backup, and debug workflows.
+- LinuxGSM helper scripts and guidance.
 - Firewall command suggestions for required UDP ports.
 - BattlEye RCon helper that appends settings without overwriting existing BattlEye config.
 
@@ -46,17 +44,17 @@ Then run:
 ./ardr.py configure
 ./ardr.py doctor
 ./ardr.py install
-./ardr.py start --instance reforger-1
+sudo ./ardr.py systemd install --instance reforger-1
+sudo ./ardr.py service enable --instance reforger-1
+sudo ./ardr.py service start --instance reforger-1
+./ardr.py service logs --instance reforger-1 --follow
 ```
 
 ```bash
 ./ardr.py menu
 ```
 
-```bash
-sudo ./ardr.py systemd install
-sudo systemctl enable --now ardr-reforger-1.service
-```
+Use `./ardr.py start --instance reforger-1` only for a quick manual smoke test before installing the service.
 
 ## Quick Start: Windows
 
@@ -111,6 +109,7 @@ Detailed config examples are in [docs/CONFIGURATION.md](/Users/awade/Documents/a
 ./ardr.py init                         # create starter deployer.json
 ./ardr.py configure                    # guided add/edit wizard
 ./ardr.py menu                         # interactive operator menu
+./ardr.py info --instance reforger-1   # one-view instance details
 ./ardr.py validate                     # check config and port collisions
 ./ardr.py ports --fix                  # auto-assign safe ports and save instance files
 ./ardr.py doctor                       # preflight host/config checks
@@ -120,9 +119,12 @@ sudo ./ardr.py firewall apply
 ./ardr.py render                       # generate server JSON and start scripts
 ./ardr.py install                      # install/update all instances with SteamCMD
 ./ardr.py install --instance reforger-1
+sudo ./ardr.py systemd install --instance reforger-1
+sudo ./ardr.py service enable --instance reforger-1
+sudo ./ardr.py service start --instance reforger-1
 ./ardr.py update                       # update and restart servers that were running
 ./ardr.py update --instance reforger-1 --no-restart
-./ardr.py start --instance reforger-1
+./ardr.py start --instance reforger-1  # manual smoke test only on VPS
 ./ardr.py stop --instance reforger-1
 ./ardr.py restart --instance reforger-1
 ./ardr.py pause --instance reforger-1
@@ -141,6 +143,7 @@ sudo ./ardr.py firewall apply
 ```
 
 `debug` runs the server in the foreground so you can see output directly. Use `logs --systemd --follow` when the instance is running under a generated Linux service.
+For VPS hosting, prefer `systemd install` plus `service start` over direct `start`.
 More operation commands are in [docs/OPERATIONS.md](/Users/awade/Documents/aramreforgerdeployer/docs/OPERATIONS.md).
 
 ## Linux Service Workflow

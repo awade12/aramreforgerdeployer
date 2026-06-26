@@ -29,8 +29,9 @@ aramreforgerdeployer/
 5. Run `./ardr.py doctor`.
 6. Run `./ardr.py install`.
 7. Open UDP ports from `./ardr.py ports`.
-8. Start manually once with `./ardr.py start --instance <name>`.
-9. Install systemd services with `sudo ./ardr.py systemd install`.
+8. Install systemd services with `sudo ./ardr.py systemd install --instance <name>`.
+9. Start with `sudo ./ardr.py service enable --instance <name>` and `sudo ./ardr.py service start --instance <name>`.
+10. Watch logs with `./ardr.py service logs --instance <name> --follow`.
 
 ## Windows Checklist
 
@@ -51,6 +52,12 @@ Run:
 ```
 
 The menu gives an easy way to run status, start, stop, restart, pause, resume, update, render, show/fix ports, doctor, LinuxGSM helper generation, and config wizard actions.
+
+For a single summary view of a server:
+
+```bash
+./ardr.py info --instance reforger-1
+```
 
 ## Preflight Doctor
 
@@ -83,17 +90,20 @@ This creates the `armar` user if missing, copies the deployer to `/opt/ardr`, ex
 ## Lifecycle Commands
 
 ```bash
-./ardr.py start --instance reforger-1
-./ardr.py stop --instance reforger-1
-./ardr.py restart --instance reforger-1
+sudo ./ardr.py systemd install --instance reforger-1
+sudo ./ardr.py service enable --instance reforger-1
+sudo ./ardr.py service start --instance reforger-1
+sudo ./ardr.py service restart --instance reforger-1
+sudo ./ardr.py service stop --instance reforger-1
+./ardr.py service logs --instance reforger-1 --follow
 ./ardr.py pause --instance reforger-1
 ./ardr.py resume --instance reforger-1
 ./ardr.py update
 ./ardr.py update --instance reforger-1 --no-restart
-./ardr.py logs --instance reforger-1 --follow
-./ardr.py logs --instance reforger-1 --systemd --follow
 ./ardr.py debug --instance reforger-1
 ```
+
+Use `./ardr.py start --instance reforger-1` only as a quick manual smoke test on VPS hosts. The standard path is systemd.
 
 `update` stops and restarts only servers that ARDR knows were already running. Add `--start-stopped` when you want updated stopped instances to start too.
 
