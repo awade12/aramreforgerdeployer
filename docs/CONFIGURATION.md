@@ -59,6 +59,7 @@ Save each server as `instances/<name>.json`.
 - `maxFPS`: Server FPS cap. Keep this set, usually `60`.
 - `profileDir`: Logs, downloaded addons, and profile data.
 - `server.name`: Public browser name.
+- `server.publicAddress`: Public VPS IP or DNS name shown by `reforger info` for direct connect.
 - `server.adminPassword`: Admin password.
 - `server.scenarioId`: Scenario config path.
 - `mods`: Workshop mods passed into the generated server config.

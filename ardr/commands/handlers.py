@@ -1,0 +1,156 @@
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+from typing import Any
+from ..core.terminal import heading, table
+from ..platform.doctor import run_doctor
+from ..platform.linux_setup import setup_linux_user
+from ..platform.linuxgsm import render_linuxgsm
+from ..platform.services import manage_windows_task, render_systemd
+from ..server.battleye import append_rcon
+from ..server.info import show_info
+from ..server.ops import install_instances, show_ports, update_instances
+from ..server.render import render_instances
+from ..server.status import status_row
+from ..ui.menu import interactive_loop
+from ..web import serve_web
+from .helpers import load_with_ports, many_instance_name, one_instance, print_validation
+from .lifecycle import cmd_debug, cmd_logs, cmd_pause, cmd_restart, cmd_resume, cmd_start, cmd_stop
+from .management import cmd_backup as run_backup
+from .management import cmd_deploy as run_deploy
+from .management import cmd_firewall as run_firewall
+from .management import cmd_mods as run_mods
+from .management import cmd_query as run_query
+from .management import cmd_service as run_service
+
+
+def cmd_render(args: argparse.Namespace) -> None:
+    config_path, config = load_with_ports(args)
+    render_instances(config_path, config, many_instance_name(args))
+
+
+def cmd_install(args: argparse.Namespace) -> None:
+    config_path, config = load_with_ports(args)
+    install_instances(config_path, config, many_instance_name(args))
+
+
+def cmd_update(args: argparse.Namespace) -> None:
+    config_path, config = load_with_ports(args)
+    update_instances(config_path, config, many_instance_name(args), args.restart, args.start_stopped)
+
+
+def cmd_status(args: argparse.Namespace) -> None:
+    config_path, config = load_with_ports(args)
+    targets = select_instances(config, many_instance_name(args))
+    heading("Status", f"{len(targets)} server{'s' if len(targets) != 1 else ''}")
+    table(
+        ["Server", "State", "Details", "Systemd"],
+        [list(status_row(config_path, config, instance)) for instance in targets],
+    )
+
+
+def cmd_info(args: argparse.Namespace) -> None:
+    config_path, config, instance = one_instance(args, "info")
+    show_info(config_path, config, instance)
+
+
+def cmd_query(args: argparse.Namespace) -> None:
+    run_query(args, one_instance)
+
+
+def cmd_ports(args: argparse.Namespace) -> None:
+    path, config = load_config(args.config)
+    changed = normalize_config_ports(config)
+    if getattr(args, "fix", False):
+        save_config(path, config)
+        print("Ports checked and saved." if changed else "Ports already safe.")
+    elif changed:
+        print("WARNING: missing or colliding ports detected. Run `reforger ports --fix` to save safe ports.")
+    show_ports(config, many_instance_name(args))
+
+
+def cmd_systemd(args: argparse.Namespace) -> None:
+    render_systemd(*load_with_ports(args), many_instance_name(args), args.action == "install")
+
+
+def cmd_service(args: argparse.Namespace) -> None:
+    run_service(args, one_instance)
+
+
+def cmd_firewall(args: argparse.Namespace) -> None:
+    run_firewall(args, load_with_ports)
+
+
+def cmd_backup(args: argparse.Namespace) -> None:
+    run_backup(args, load_with_ports)
+
+
+def cmd_mods(args: argparse.Namespace) -> None:
+    run_mods(args, load_with_ports)
+
+
+def cmd_windows_task(args: argparse.Namespace) -> None:
+    manage_windows_task(*load_with_ports(args), many_instance_name(args), args.action == "install")
+
+
+def cmd_battleye(args: argparse.Namespace) -> None:
+    append_rcon(*one_instance(args, "battleye"), args.rcon_port, args.rcon_password)
+
+
+def cmd_linuxgsm(args: argparse.Namespace) -> None:
+    render_linuxgsm(*load_with_ports(args), args.instance)
+
+
+def cmd_menu(args: argparse.Namespace) -> None:
+    from .registry import dispatch_table
+
+    interactive_loop(args, dispatch_table())
+
+
+def cmd_doctor(args: argparse.Namespace) -> None:
+    config_path, config = load_with_ports(args)
+    failures = run_doctor(config_path, config)
+    if failures:
+        raise SystemExit(1)
+
+
+def cmd_linux_user(args: argparse.Namespace) -> None:
+    setup_linux_user(args.user, args.target, Path.cwd(), args.apply)
+
+
+def cmd_deploy(args: argparse.Namespace) -> None:
+    run_deploy(args, one_instance)
+
+
+def cmd_check(args: argparse.Namespace) -> None:
+    config_path, config = load_with_ports(args)
+    print_validation(config)
+    show_ports(config, many_instance_name(args))
+    failures = run_doctor(config_path, config)
+    if failures:
+        raise SystemExit(1)
+    print("Ready.")
+
+
+def cmd_fix(args: argparse.Namespace) -> None:
+    config_path, config = load_config(args.config)
+    changed = normalize_config_ports(config)
+    save_config(config_path, config)
+    print("Ports fixed and saved." if changed else "Ports already safe.")
+    print_validation(config)
+    failures = run_doctor(config_path, config)
+    if failures:
+        raise SystemExit(1)
+    print("No fixable issues found.")
+
+
+def cmd_setup(args: argparse.Namespace) -> None:
+    from ..config.commands import cmd_configure
+
+    cmd_configure(args)
+    cmd_fix(args)
+
+
+def cmd_web(args: argparse.Namespace) -> None:
+    serve_web(args.config, args.host, args.port, args.password, args.auth_file)
