@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-echo "ARDR Linux bootstrap"
+echo "Reforger Linux bootstrap"
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "python3 is required. Install it with your package manager, then rerun this script." >&2
@@ -24,19 +24,44 @@ if ! command -v steamcmd >/dev/null 2>&1; then
   fi
 fi
 
-chmod +x "$ROOT/ardr.py"
+chmod +x "$ROOT/reforger" "$ROOT/reforger.py" "$ROOT/ardr.py"
 
-if [ ! -f "$ROOT/deployer.json" ]; then
-  "$ROOT/ardr.py" init
+BIN_DIR="${HOME}/.local/bin"
+mkdir -p "$BIN_DIR"
+ln -sf "$ROOT/reforger" "$BIN_DIR/reforger"
+INSTALLED_COMMAND="$BIN_DIR/reforger"
+
+if [ -d /usr/local/bin ]; then
+  if [ -w /usr/local/bin ]; then
+    ln -sf "$ROOT/reforger" /usr/local/bin/reforger
+    INSTALLED_COMMAND="/usr/local/bin/reforger"
+  elif command -v sudo >/dev/null 2>&1; then
+    sudo ln -sf "$ROOT/reforger" /usr/local/bin/reforger
+    INSTALLED_COMMAND="/usr/local/bin/reforger"
+  fi
 fi
 
-"$ROOT/ardr.py" validate
-"$ROOT/ardr.py" render
+case ":$PATH:" in
+  *":$BIN_DIR:"*) ;;
+  *) export PATH="$BIN_DIR:$PATH" ;;
+esac
+
+echo "Installed command: $INSTALLED_COMMAND"
+if [ "$INSTALLED_COMMAND" = "$BIN_DIR/reforger" ]; then
+  echo "Add this to your shell profile if reforger is not found in a new terminal:"
+  echo "  export PATH=\"\$HOME/.local/bin:\$PATH\""
+fi
+
+if [ ! -f "$ROOT/deployer.json" ]; then
+  reforger init
+fi
+
+reforger validate
+reforger render
 
 echo
 echo "Next steps:"
 echo "  1. Edit $ROOT/deployer.json for names, admin password, ports, and scenarios."
-echo "  2. Run: $ROOT/ardr.py install"
-echo "  3. Run one server: $ROOT/ardr.py start --instance reforger-1"
-echo "  4. Show firewall rules: $ROOT/ardr.py ports"
-
+echo "  2. Run: reforger install"
+echo "  3. Run one server: reforger start --instance reforger-1"
+echo "  4. Show firewall rules: reforger ports"

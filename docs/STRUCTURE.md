@@ -3,7 +3,9 @@
 The code is split by job so no single file owns the whole deployer.
 
 ```text
-ardr.py                 tiny command launcher
+reforger                Linux/macOS command launcher
+reforger.py             Windows-friendly command launcher
+ardr.py                 backward-compatible legacy launcher
 deployer.json           global deployer settings
 instances/              one editable config file per server
 ardr/

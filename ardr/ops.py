@@ -54,7 +54,7 @@ def show_ports(config: dict[str, Any], instance_name: str | None) -> None:
     print("\nWindows PowerShell examples:")
     for instance in targets:
         ports = f"{int(instance['port'])},{int(instance['queryPort'])}"
-        print(f'  New-NetFirewallRule -DisplayName "ARDR {instance["name"]}" -Direction Inbound -Protocol UDP -LocalPort {ports} -Action Allow')
+        print(f'  New-NetFirewallRule -DisplayName "Reforger {instance["name"]}" -Direction Inbound -Protocol UDP -LocalPort {ports} -Action Allow')
 
 
 def show_logs(config_path: Path, config: dict[str, Any], instance: dict[str, Any], lines: int, follow: bool, systemd: bool) -> None:
@@ -70,4 +70,3 @@ def show_logs(config_path: Path, config: dict[str, Any], instance: dict[str, Any
         return
     cmd = ["tail", "-n", str(lines)]
     run_checked(cmd + (["-f"] if follow else []) + [str(logs[0])])
-

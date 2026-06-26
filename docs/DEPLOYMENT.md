@@ -6,7 +6,8 @@ Keep the deployer repo separate from generated server files:
 
 ```text
 aramreforgerdeployer/
-  ardr.py
+  reforger
+  reforger.py
   deployer.json
   instances/
     reforger-1.json
@@ -24,29 +25,31 @@ aramreforgerdeployer/
 
 1. Pick a Linux VPS with enough CPU and memory for the player count and mod set.
 2. Install the deployer with `scripts/install-linux.sh`.
-3. Optionally move it to a non-root user with `sudo ./ardr.py linux-user --apply`.
-4. Run `./ardr.py configure` or edit `instances/*.json`.
-5. Run `./ardr.py doctor`.
-6. Preview deploy with `./ardr.py deploy --instance <name>`.
-7. Apply deploy with `sudo ./ardr.py deploy --instance <name> --apply`.
-8. Watch logs with `./ardr.py service logs --instance <name> --follow`.
+3. Use the installed `reforger` command for deployment and operations.
+4. Optionally move it to a non-root user with `sudo reforger linux-user --apply`.
+5. Run `reforger configure` or edit `instances/*.json`.
+6. Run `reforger doctor`.
+7. Preview deploy with `reforger deploy --instance <name>`.
+8. Apply deploy with `sudo reforger deploy --instance <name> --apply`.
+9. Watch logs with `reforger service logs --instance <name> --follow`.
 
 ## Windows Checklist
 
 1. Install Python 3.
 2. Run PowerShell as Administrator.
 3. Run `.\scripts\install-windows.ps1`.
-4. Run `py .\ardr.py configure` or edit `instances\*.json`.
-5. Run `py .\ardr.py install`.
-6. Open UDP ports from `py .\ardr.py ports`.
-7. Install startup tasks with `py .\ardr.py windows-task install`.
+4. Open a new terminal if PowerShell does not find `reforger` immediately.
+5. Run `reforger configure` or edit `instances\*.json`.
+6. Run `reforger install`.
+7. Open UDP ports from `reforger ports`.
+8. Install startup tasks with `reforger windows-task install`.
 
 ## Operator Menu
 
 Run:
 
 ```bash
-./ardr.py menu
+reforger menu
 ```
 
 The menu gives an easy way to run status, start, stop, restart, pause, resume, update, render, show/fix ports, doctor, LinuxGSM helper generation, and config wizard actions.
@@ -54,8 +57,8 @@ The menu gives an easy way to run status, start, stop, restart, pause, resume, u
 For a single summary view of a server:
 
 ```bash
-./ardr.py info --instance reforger-1
-./ardr.py query --instance reforger-1
+reforger info --instance reforger-1
+reforger query --instance reforger-1
 ```
 
 ## Preflight Doctor
@@ -63,7 +66,7 @@ For a single summary view of a server:
 Run:
 
 ```bash
-./ardr.py doctor
+reforger doctor
 ```
 
 It checks Python, SteamCMD availability, config validity, disk space, whether UDP ports can bind locally, expected server executables, local firewall hints, and reminds you that VPS provider firewall/security groups must also be opened.
@@ -73,13 +76,13 @@ It checks Python, SteamCMD availability, config validity, disk space, whether UD
 Do a dry run first:
 
 ```bash
-./ardr.py linux-user --user armar --target /opt/ardr
+reforger linux-user --user armar --target /opt/ardr
 ```
 
 Apply as root:
 
 ```bash
-sudo ./ardr.py linux-user --user armar --target /opt/ardr --apply
+sudo reforger linux-user --user armar --target /opt/ardr --apply
 sudo -iu armar
 cd /opt/ardr
 ```
@@ -89,28 +92,28 @@ This creates the `armar` user if missing, copies the deployer to `/opt/ardr`, ex
 ## Lifecycle Commands
 
 ```bash
-sudo ./ardr.py systemd install --instance reforger-1
-sudo ./ardr.py service enable --instance reforger-1
-sudo ./ardr.py service start --instance reforger-1
-sudo ./ardr.py service restart --instance reforger-1
-sudo ./ardr.py service stop --instance reforger-1
-./ardr.py service logs --instance reforger-1 --follow
-./ardr.py pause --instance reforger-1
-./ardr.py resume --instance reforger-1
-./ardr.py update
-./ardr.py update --instance reforger-1 --no-restart
-./ardr.py debug --instance reforger-1
+sudo reforger systemd install --instance reforger-1
+sudo reforger service enable --instance reforger-1
+sudo reforger service start --instance reforger-1
+sudo reforger service restart --instance reforger-1
+sudo reforger service stop --instance reforger-1
+reforger service logs --instance reforger-1 --follow
+reforger pause --instance reforger-1
+reforger resume --instance reforger-1
+reforger update
+reforger update --instance reforger-1 --no-restart
+reforger debug --instance reforger-1
 ```
 
-Use `./ardr.py start --instance reforger-1` only as a quick manual smoke test on VPS hosts. The standard path is systemd.
+Use `reforger start --instance reforger-1` only as a quick manual smoke test on VPS hosts. The standard path is systemd.
 
-`update` stops and restarts only servers that ARDR knows were already running. Add `--start-stopped` when you want updated stopped instances to start too.
+`update` stops and restarts only servers that Reforger knows were already running. Add `--start-stopped` when you want updated stopped instances to start too.
 
 Service controls, firewall apply, backups, and mods are covered in [OPERATIONS.md](/Users/awade/Documents/aramreforgerdeployer/docs/OPERATIONS.md).
 
 ## Adding Another Server
 
-Run `./ardr.py configure`, or copy an existing `instances/*.json` file and change:
+Run `reforger configure`, or copy an existing `instances/*.json` file and change:
 
 - `name`
 - `port`
@@ -122,10 +125,10 @@ Run `./ardr.py configure`, or copy an existing `instances/*.json` file and chang
 Then run:
 
 ```bash
-./ardr.py validate
-./ardr.py ports --fix
-./ardr.py render
-./ardr.py install --instance new-name
+reforger validate
+reforger ports --fix
+reforger render
+reforger install --instance new-name
 ```
 
 ## Stable vs Experimental
@@ -148,10 +151,10 @@ Stable uses Steam app `1874900`. Experimental uses Steam app `1890870`.
 
 For Linux hosts, LinuxGSM is often the best operational wrapper if you want mature monitoring, console attach, backups, debug output, and cron-driven update checks.
 
-Generate ARDR helper scripts:
+Generate Reforger helper scripts:
 
 ```bash
-./ardr.py linuxgsm
+reforger linuxgsm
 ```
 
 Then run the generated `linuxgsm-bootstrap.sh` inside the instance generated folder or copy its commands into a dedicated `armarserver` user account.
@@ -185,7 +188,7 @@ Recommended LinuxGSM cron:
 Append RCon settings:
 
 ```bash
-./ardr.py battleye --instance reforger-1 --rcon-port 5678 --rcon-password "change-this"
+reforger battleye --instance reforger-1 --rcon-port 5678 --rcon-password "change-this"
 ```
 
 Do not overwrite `BattlEye/BEServer_x64.cfg`; the game writes required values there.

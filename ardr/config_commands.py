@@ -34,7 +34,7 @@ def cmd_configure(args: argparse.Namespace) -> None:
 def cmd_validate(args: argparse.Namespace) -> None:
     _, config = load_config(args.config)
     if normalize_config_ports(config):
-        print("WARNING: config has missing or colliding ports. Run `ardr.py ports --fix` to save safe ports.")
+        print("WARNING: config has missing or colliding ports. Run `reforger ports --fix` to save safe ports.")
     _print_validation(config)
     print("Config is valid.")
 

@@ -18,9 +18,9 @@ def page(title: str, body: str, csrf: str = "") -> str:
 def login(error: str = "") -> str:
     err = f"<p class='text-sm text-red-300'>{html.escape(error)}</p>" if error else ""
     return page(
-        "ARDR Login",
+        "Reforger Login",
         f"""<section class="mx-auto mt-24 max-w-sm rounded-lg border border-zinc-800 bg-zinc-900 p-6">
-<h1 class="text-xl font-semibold">ARDR Dashboard</h1>
+<h1 class="text-xl font-semibold">Reforger Dashboard</h1>
 <p class="mt-1 text-sm text-zinc-400">Sign in to manage your Reforger servers.</p>
 <form method="post" action="/login" class="mt-6 space-y-4">
 {err}
@@ -33,13 +33,13 @@ def login(error: str = "") -> str:
 def dashboard(instances: list[dict[str, Any]], selected: str, csrf: str, panel: str) -> str:
     links = "".join(_instance_link(i, selected) for i in instances)
     body = f"""<div class="flex items-center justify-between gap-4">
-<div><h1 class="text-2xl font-semibold">ARDR Dashboard</h1><p class="text-sm text-zinc-400">Arma Reforger server control panel</p></div>
+<div><h1 class="text-2xl font-semibold">Reforger Dashboard</h1><p class="text-sm text-zinc-400">Arma Reforger server control panel</p></div>
 <a href="/logout" class="rounded border border-zinc-700 px-3 py-2 text-sm">Logout</a></div>
 <div class="mt-6 grid gap-6 lg:grid-cols-[260px_1fr]">
 <aside class="rounded-lg border border-zinc-800 bg-zinc-900 p-3"><div class="space-y-2">{links}</div></aside>
 <section id="panel" class="rounded-lg border border-zinc-800 bg-zinc-900 p-4">{panel}</section>
 </div>"""
-    return page("ARDR Dashboard", body, csrf)
+    return page("Reforger Dashboard", body, csrf)
 
 
 def instance_panel(

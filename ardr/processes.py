@@ -71,7 +71,7 @@ def stop_instance(config_path: Path, config: dict[str, Any], instance: dict[str,
     if not pid or not process_running(pid):
         path.unlink(missing_ok=True)
         if not quiet:
-            print(f"{instance['name']} is not running under ARDR.")
+            print(f"{instance['name']} is not running under Reforger.")
         return False
     if is_windows():
         run_checked(["taskkill", "/PID", str(pid), "/T", "/F"])
@@ -86,7 +86,7 @@ def stop_instance(config_path: Path, config: dict[str, Any], instance: dict[str,
 def pause_instance(config_path: Path, config: dict[str, Any], instance: dict[str, Any]) -> None:
     pid = read_pid(config_path, config, instance)
     if not process_running(pid):
-        raise SystemExit(f"{instance['name']} is not running under ARDR.")
+        raise SystemExit(f"{instance['name']} is not running under Reforger.")
     if is_windows():
         run_checked(["powershell", "-NoProfile", "-Command", f"Suspend-Process -Id {pid}"])
     else:
@@ -97,7 +97,7 @@ def pause_instance(config_path: Path, config: dict[str, Any], instance: dict[str
 def resume_instance(config_path: Path, config: dict[str, Any], instance: dict[str, Any]) -> None:
     pid = read_pid(config_path, config, instance)
     if not process_running(pid):
-        raise SystemExit(f"{instance['name']} is not running under ARDR.")
+        raise SystemExit(f"{instance['name']} is not running under Reforger.")
     if is_windows():
         run_checked(["powershell", "-NoProfile", "-Command", f"Resume-Process -Id {pid}"])
     else:

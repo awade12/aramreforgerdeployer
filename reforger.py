@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Backward-compatible launcher for the Reforger server command line."""
+"""Windows-friendly launcher for the Reforger server command line."""
 
 import sys
 from pathlib import Path

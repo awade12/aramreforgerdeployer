@@ -71,7 +71,7 @@ def _executable_checks(config_path: Path, config: dict[str, Any]) -> int:
 
 def _firewall_notes(config: dict[str, Any]) -> None:
     if is_windows():
-        print("[INFO] Windows firewall: run `ardr.py ports` for New-NetFirewallRule examples.")
+        print("[INFO] Windows firewall: run `reforger ports` for New-NetFirewallRule examples.")
         return
     ufw = shutil.which("ufw")
     if ufw:
@@ -80,5 +80,5 @@ def _firewall_notes(config: dict[str, Any]) -> None:
         print(f"[INFO] UFW status: {first}")
     else:
         print("[INFO] UFW not found; open UDP ports with your distro firewall if enabled.")
-    print("[INFO] VPS provider firewall/security groups must also allow the UDP ports from `ardr.py ports`.")
+    print("[INFO] VPS provider firewall/security groups must also allow the UDP ports from `reforger ports`.")
 

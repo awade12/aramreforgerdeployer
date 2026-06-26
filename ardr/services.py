@@ -83,7 +83,7 @@ def manage_windows_task(config_path: Path, config: dict[str, Any], instance_name
     render_instances(config_path, config, instance_name)
     ardr = Path(sys.argv[0]).resolve()
     for instance in select_instances(config, instance_name):
-        task_name = f"ARDR {instance['name']}"
+        task_name = f"Reforger {instance['name']}"
         if install:
             task_cmd = f'"{sys.executable}" "{ardr}" start --config "{config_path}" --instance "{instance["name"]}"'
             run_checked(["schtasks", "/Create", "/TN", task_name, "/SC", "ONSTART", "/RL", "HIGHEST", "/TR", task_cmd, "/F"])

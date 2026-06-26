@@ -3,7 +3,7 @@
 Run the wizard first:
 
 ```bash
-./ardr.py configure
+reforger configure
 ```
 
 You can also edit files directly. Global settings live in `deployer.json`; each server lives in its own file under `instances/`.
@@ -51,7 +51,7 @@ Save each server as `instances/<name>.json`.
 
 ## Important Fields
 
-- `name`: Local instance name used by ARDR commands.
+- `name`: Local instance name used by Reforger commands.
 - `branch`: `stable`, `experimental`, or a numeric Steam app ID.
 - `port`: UDP game traffic port.
 - `queryPort`: UDP A2S/query port.
@@ -66,7 +66,7 @@ Every instance needs unique `port` and `queryPort` values.
 
 ## Automatic Ports
 
-New instances get safe ports automatically. ARDR starts at:
+New instances get safe ports automatically. Reforger starts at:
 
 - Game ports: `2001`, `2003`, `2005`, ...
 - Query ports: `17777`, `17779`, `17781`, ...
@@ -74,7 +74,7 @@ New instances get safe ports automatically. ARDR starts at:
 If you manually edit files and accidentally collide ports, run:
 
 ```bash
-./ardr.py ports --fix
+reforger ports --fix
 ```
 
 That rewrites `instances/*.json` with safe ports before rendering or starting servers.

@@ -34,7 +34,7 @@ def serve_web(config: str, host: str, port: int, password: str | None, auth_file
     if host not in {"127.0.0.1", "localhost", "::1"}:
         print("WARNING: dashboard is exposed. Use a strong password and put HTTPS/reverse proxy in front of it.")
     server = ThreadingHTTPServer((host, port), _handler(WebState(config, auth_path)))
-    print(f"ARDR dashboard listening on http://{host}:{port}")
+    print(f"Reforger dashboard listening on http://{host}:{port}")
     server.serve_forever()
 
 

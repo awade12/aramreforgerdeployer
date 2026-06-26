@@ -34,7 +34,7 @@ def _windows_rules(config: dict[str, Any], instance_name: str | None, dry_run: b
             "powershell",
             "-NoProfile",
             "-Command",
-            f'New-NetFirewallRule -DisplayName "ARDR {instance["name"]}" -Direction Inbound -Protocol UDP -LocalPort {ports} -Action Allow',
+            f'New-NetFirewallRule -DisplayName "Reforger {instance["name"]}" -Direction Inbound -Protocol UDP -LocalPort {ports} -Action Allow',
         ]
         _run_or_print(cmd, dry_run)
 
@@ -44,4 +44,3 @@ def _run_or_print(cmd: list[str], dry_run: bool) -> None:
         print("+ " + " ".join(cmd))
     else:
         run_checked(cmd)
-

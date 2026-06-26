@@ -35,23 +35,25 @@ chmod +x scripts/install-linux.sh
 ./scripts/install-linux.sh
 ```
 
+The installer adds a `reforger` command to your PATH.
+
 Then run:
 
 ```bash
-./ardr.py configure
-./ardr.py doctor
-./ardr.py install
-sudo ./ardr.py systemd install --instance reforger-1
-sudo ./ardr.py service enable --instance reforger-1
-sudo ./ardr.py service start --instance reforger-1
-./ardr.py service logs --instance reforger-1 --follow
+reforger configure
+reforger doctor
+reforger install
+sudo reforger systemd install --instance reforger-1
+sudo reforger service enable --instance reforger-1
+sudo reforger service start --instance reforger-1
+reforger service logs --instance reforger-1 --follow
 ```
 
 ```bash
-./ardr.py menu
+reforger menu
 ```
 
-Use `./ardr.py start --instance reforger-1` only for a quick manual smoke test before installing the service.
+Use `reforger start --instance reforger-1` only for a quick manual smoke test before installing the service.
 
 ## Quick Start: Windows
 
@@ -62,16 +64,18 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\scripts\install-windows.ps1
 ```
 
+The installer adds a `reforger` command to your user PATH. Open a new terminal if PowerShell does not find it immediately.
+
 Then run:
 
 ```powershell
-py .\ardr.py configure
-py .\ardr.py install
-py .\ardr.py start --instance reforger-1
+reforger configure
+reforger install
+reforger start --instance reforger-1
 ```
 
 ```powershell
-py .\ardr.py windows-task install
+reforger windows-task install
 ```
 
 ## Configure Many Servers
@@ -79,67 +83,67 @@ py .\ardr.py windows-task install
 Run this once to create a starter config:
 
 ```bash
-./ardr.py init
+reforger init
 ```
 
 Add or edit servers with prompts:
 
 ```bash
-./ardr.py configure
-./ardr.py configure --instance reforger-1
+reforger configure
+reforger configure --instance reforger-1
 ```
 
-Each server is saved as its own file in `instances/`. ARDR can assign safe ports automatically.
+Each server is saved as its own file in `instances/`. Reforger can assign safe ports automatically.
 
 Detailed config examples are in [docs/CONFIGURATION.md](/Users/awade/Documents/aramreforgerdeployer/docs/CONFIGURATION.md).
 
 ## Ports
 
 ```bash
-./ardr.py ports
-./ardr.py ports --fix
+reforger ports
+reforger ports --fix
 ```
 
 ## Common Commands
 
 ```bash
-./ardr.py init                         # create starter deployer.json
-./ardr.py configure                    # guided add/edit wizard
-./ardr.py menu                         # interactive operator menu
-./ardr.py web --host 127.0.0.1 --port 8080
-./ardr.py info --instance reforger-1   # one-view instance details
-./ardr.py query --instance reforger-1  # live server query
-./ardr.py validate                     # check config and port collisions
-./ardr.py ports --fix                  # auto-assign safe ports and save instance files
-./ardr.py doctor                       # preflight host/config checks
-./ardr.py linux-user                   # dry-run non-root Linux setup
-./ardr.py firewall apply --dry-run
-sudo ./ardr.py firewall apply
-./ardr.py render                       # generate server JSON and start scripts
-./ardr.py install                      # install/update all instances with SteamCMD
-./ardr.py install --instance reforger-1
-sudo ./ardr.py systemd install --instance reforger-1
-sudo ./ardr.py service enable --instance reforger-1
-sudo ./ardr.py service start --instance reforger-1
-./ardr.py deploy --instance reforger-1 # dry-run first deploy
-./ardr.py update                       # update and restart servers that were running
-./ardr.py update --instance reforger-1 --no-restart
-./ardr.py start --instance reforger-1  # manual smoke test only on VPS
-./ardr.py stop --instance reforger-1
-./ardr.py restart --instance reforger-1
-./ardr.py pause --instance reforger-1
-./ardr.py resume --instance reforger-1
-./ardr.py status
-./ardr.py logs --instance reforger-1 --follow
-./ardr.py debug --instance reforger-1
-./ardr.py service restart --instance reforger-1
-./ardr.py service logs --instance reforger-1 --follow
-./ardr.py mods add --instance reforger-1 --id MOD_ID --name "Mod Name"
-./ardr.py mods list --instance reforger-1
-./ardr.py backup create --instance reforger-1
-./ardr.py ports
-./ardr.py linuxgsm
-./ardr.py battleye --instance reforger-1 --rcon-port 5678 --rcon-password "change-me"
+reforger init                         # create starter deployer.json
+reforger configure                    # guided add/edit wizard
+reforger menu                         # interactive operator menu
+reforger web --host 127.0.0.1 --port 8080
+reforger info --instance reforger-1   # one-view instance details
+reforger query --instance reforger-1  # live server query
+reforger validate                     # check config and port collisions
+reforger ports --fix                  # auto-assign safe ports and save instance files
+reforger doctor                       # preflight host/config checks
+reforger linux-user                   # dry-run non-root Linux setup
+reforger firewall apply --dry-run
+sudo reforger firewall apply
+reforger render                       # generate server JSON and start scripts
+reforger install                      # install/update all instances with SteamCMD
+reforger install --instance reforger-1
+sudo reforger systemd install --instance reforger-1
+sudo reforger service enable --instance reforger-1
+sudo reforger service start --instance reforger-1
+reforger deploy --instance reforger-1 # dry-run first deploy
+reforger update                       # update and restart servers that were running
+reforger update --instance reforger-1 --no-restart
+reforger start --instance reforger-1  # manual smoke test only on VPS
+reforger stop --instance reforger-1
+reforger restart --instance reforger-1
+reforger pause --instance reforger-1
+reforger resume --instance reforger-1
+reforger status
+reforger logs --instance reforger-1 --follow
+reforger debug --instance reforger-1
+reforger service restart --instance reforger-1
+reforger service logs --instance reforger-1 --follow
+reforger mods add --instance reforger-1 --id MOD_ID --name "Mod Name"
+reforger mods list --instance reforger-1
+reforger backup create --instance reforger-1
+reforger ports
+reforger linuxgsm
+reforger battleye --instance reforger-1 --rcon-port 5678 --rcon-password "change-me"
 ```
 
 `debug` runs the server in the foreground so you can see output directly. Use `logs --systemd --follow` when the instance is running under a generated Linux service.
@@ -151,7 +155,7 @@ More operation commands are in [docs/OPERATIONS.md](/Users/awade/Documents/aramr
 For safer VPS hosting, prepare a non-root server user after cloning the repo:
 
 ```bash
-sudo ./ardr.py linux-user --user armar --target /opt/ardr --apply
+sudo reforger linux-user --user armar --target /opt/ardr --apply
 sudo -iu armar
 cd /opt/ardr
 ```
@@ -161,10 +165,10 @@ The default `linux-user` command is a dry run unless `--apply` is passed.
 Install and manage services:
 
 ```bash
-sudo ./ardr.py systemd install
+sudo reforger systemd install
 sudo systemctl enable --now ardr-reforger-1.service
-sudo ./ardr.py service restart --instance reforger-1
-./ardr.py service logs --instance reforger-1 --follow
+sudo reforger service restart --instance reforger-1
+reforger service logs --instance reforger-1 --follow
 ```
 
 ## LinuxGSM Workflow
@@ -172,7 +176,7 @@ sudo ./ardr.py service restart --instance reforger-1
 LinuxGSM is a strong option on Linux when you want a battle-tested wrapper with monitor, console, backup, debug, update, and cron support.
 
 ```bash
-./ardr.py linuxgsm
+reforger linuxgsm
 ```
 
 More detail is in [docs/DEPLOYMENT.md](/Users/awade/Documents/aramreforgerdeployer/docs/DEPLOYMENT.md).
@@ -182,14 +186,14 @@ More detail is in [docs/DEPLOYMENT.md](/Users/awade/Documents/aramreforgerdeploy
 Install startup tasks:
 
 ```powershell
-py .\ardr.py windows-task install
+reforger windows-task install
 ```
 
 Manage in Task Scheduler, or use `schtasks`:
 
 ```powershell
-schtasks /Run /TN "ARDR reforger-1"
-schtasks /End /TN "ARDR reforger-1"
+schtasks /Run /TN "Reforger reforger-1"
+schtasks /End /TN "Reforger reforger-1"
 ```
 
 ## Notes

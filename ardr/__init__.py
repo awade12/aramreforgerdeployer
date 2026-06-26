@@ -1,2 +1,2 @@
-"""ARDR: Arma Reforger Dedicated-server Runner."""
+"""Reforger server deployer."""
 

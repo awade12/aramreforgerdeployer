@@ -12,7 +12,7 @@ from .ports import assign_missing_ports
 def load_config(path: str) -> tuple[Path, dict[str, Any]]:
     cfg_path = norm_path(path)
     if not cfg_path.exists():
-        raise SystemExit(f"Config file not found: {cfg_path}. Run `ardr.py init` first.")
+        raise SystemExit(f"Config file not found: {cfg_path}. Run `reforger init` first.")
     with cfg_path.open("r", encoding="utf-8") as fh:
         config = json.load(fh)
     config["instances"] = _load_instance_files(cfg_path, config)
@@ -22,7 +22,7 @@ def load_config(path: str) -> tuple[Path, dict[str, Any]]:
 def load_root_config(path: str) -> tuple[Path, dict[str, Any]]:
     cfg_path = norm_path(path)
     if not cfg_path.exists():
-        raise SystemExit(f"Config file not found: {cfg_path}. Run `ardr.py init` first.")
+        raise SystemExit(f"Config file not found: {cfg_path}. Run `reforger init` first.")
     with cfg_path.open("r", encoding="utf-8") as fh:
         return cfg_path, json.load(fh)
 

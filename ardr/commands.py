@@ -92,7 +92,7 @@ def cmd_ports(args: argparse.Namespace) -> None:
         save_config(path, config)
         print("Ports checked and saved." if changed else "Ports already safe.")
     elif changed:
-        print("WARNING: missing or colliding ports detected. Run `ardr.py ports --fix` to save safe ports.")
+        print("WARNING: missing or colliding ports detected. Run `reforger ports --fix` to save safe ports.")
     show_ports(config, args.instance)
 
 def cmd_systemd(args: argparse.Namespace) -> None:

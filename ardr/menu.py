@@ -47,7 +47,7 @@ def interactive_loop(args: argparse.Namespace, dispatch: dict[str, Action]) -> N
         ("quit", "Quit", False, False),
     ]
     while True:
-        print("\nARDR Manager")
+        print("\nReforger Manager")
         for index, (_, label, _, _) in enumerate(actions, start=1):
             print(f"  {index}. {label}")
         choice = input("Choose action: ").strip().lower()
