@@ -1,0 +1,42 @@
+{
+  "baseDir": "./deployments",
+  "steamcmd": "steamcmd",
+  "instances": [
+    {
+      "name": "reforger-1",
+      "branch": "stable",
+      "port": 2001,
+      "queryPort": 17777,
+      "maxFPS": 60,
+      "profileDir": "./profiles/reforger-1",
+      "installDir": "./deployments/reforger-1/server",
+      "server": {
+        "name": "Public server name",
+        "password": "",
+        "adminPassword": "change-this",
+        "scenarioId": "{ECC61978EDCC2B5A}Missions/23_Campaign.conf",
+        "maxPlayers": 64,
+        "visible": true,
+        "crossplay": true,
+        "bindAddress": "0.0.0.0",
+        "publicAddress": "",
+        "publicPort": 2001,
+        "queryAddress": "0.0.0.0",
+        "serverMaxViewDistance": 2500,
+        "serverMinGrassDistance": 50,
+        "networkViewDistance": 1000,
+        "disableThirdPerson": false,
+        "fastValidation": true,
+        "battlEye": true
+      },
+      "mods": [
+        {
+          "modId": "596A1A2D8C7C4B3F",
+          "name": "Example Mod",
+          "version": ""
+        }
+      ]
+    }
+  ]
+}
+

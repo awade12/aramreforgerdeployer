@@ -1,0 +1,8 @@
+deployer.json
+instances/
+deployments/
+profiles/
+tools/
+*.pid
+*.log
+__pycache__/
