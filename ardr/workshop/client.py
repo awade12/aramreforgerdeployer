@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -32,6 +33,7 @@ class WorkshopBundle:
     mod_id: str
     name: str
     version: str
+    updated_at: str
     summary: str
     scenario: WorkshopScenario | None
     scenarios: tuple[WorkshopScenario, ...]
@@ -58,6 +60,7 @@ def fetch_workshop_bundle(url_or_id: str, scenario_index: int = 0) -> WorkshopBu
         mod_id=mod_id,
         name=str(asset.get("name", mod_id)),
         version=str(asset.get("currentVersionNumber", "")),
+        updated_at=str(asset.get("updatedAt", "")),
         summary=str(asset.get("summary", "")),
         scenario=scenarios[scenario_index],
         scenarios=scenarios,
@@ -66,8 +69,15 @@ def fetch_workshop_bundle(url_or_id: str, scenario_index: int = 0) -> WorkshopBu
 
 
 def _fetch_asset(mod_id: str) -> dict[str, Any]:
-    url = f"{WORKSHOP_BASE}/{mod_id}"
-    request = urllib.request.Request(url, headers={"User-Agent": "reforger-deployer/1.0"})
+    url = f"{WORKSHOP_BASE}/{mod_id}?_={int(time.time() * 1000)}"
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "reforger-deployer/1.0",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+        },
+    )
     try:
         with urllib.request.urlopen(request, timeout=30) as response:
             html = response.read().decode("utf-8", errors="replace")

@@ -10,6 +10,10 @@ from .client import WorkshopBundle, mod_payload
 
 def preview_workshop_bundle(bundle: WorkshopBundle) -> None:
     heading(bundle.name, bundle.summary or bundle.mod_id)
+    version_line = bundle.version or "unknown"
+    if bundle.updated_at:
+        version_line = f"{version_line} (updated {bundle.updated_at})"
+    kv([("Version", version_line)])
     if bundle.scenario:
         kv(
             [
