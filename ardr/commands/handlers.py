@@ -15,6 +15,14 @@ from ..server.ops import install_instances, show_ports, update_instances
 from ..server.render import render_instances
 from ..server.status import status_row
 from ..ui.menu import interactive_loop
+from ..integrations.discord import (
+    configure_discord,
+    resolve_ini_path,
+    serve_discord,
+    show_discord_status,
+    sync_discord_status,
+    load_settings,
+)
 from ..web import serve_web
 from .helpers import load_with_ports, many_instance_name, one_instance, print_validation
 from .management import cmd_backup as run_backup
@@ -155,6 +163,36 @@ def cmd_setup(args: argparse.Namespace) -> None:
 
 def cmd_web(args: argparse.Namespace) -> None:
     serve_web(args.config, args.host, args.port, args.password, args.auth_file)
+
+
+def cmd_discord(args: argparse.Namespace) -> None:
+    ini_path = resolve_ini_path(args.ini)
+    if args.action == "configure":
+        path = configure_discord(
+            ini_path,
+            channel_id=args.channel_id,
+            token=args.token,
+            interval=args.interval,
+            title=args.title,
+        )
+        print(f"Saved Discord config to {path} (mode 600).")
+        show_discord_status(path)
+        return
+    if args.action == "status":
+        show_discord_status(ini_path)
+        return
+    config_path, config = load_config(args.config)
+    settings = load_settings(ini_path, channel_id=args.channel_id, interval=args.interval)
+    if args.action == "start":
+        serve_discord(args.config, ini_path, args.interval)
+        return
+    message = sync_discord_status(
+        config_path,
+        config,
+        settings,
+        force_post=args.action == "post",
+    )
+    print(message)
 
 
 def cmd_workshop(args: argparse.Namespace) -> None:

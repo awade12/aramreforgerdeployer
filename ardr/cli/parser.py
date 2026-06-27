@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 
 from ..core.constants import DEFAULT_CONFIG
-from .subparsers import add_basic, add_lifecycle, add_management, add_platform, add_web
+from .subparsers import add_basic, add_discord, add_lifecycle, add_management, add_platform, add_web
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -15,4 +15,5 @@ def build_parser() -> argparse.ArgumentParser:
     add_platform(sub)
     add_management(sub)
     add_web(sub)
+    add_discord(sub)
     return parser

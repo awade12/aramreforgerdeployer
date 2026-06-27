@@ -22,6 +22,7 @@ It uses the official dedicated-server Steam app IDs:
 - Optional Linux `systemd` service files for auto-start and crash restart.
 - Service controls, firewall automation, backups, and mod helpers.
 - Authenticated HTMX/Tailwind web dashboard.
+- Discord status embed that updates one message in a channel.
 - Optional Windows startup Scheduled Tasks.
 - LinuxGSM helper scripts and guidance.
 - Firewall command suggestions for required UDP ports.
@@ -121,6 +122,8 @@ reforger mods list
 reforger check                       # validate, ports, doctor
 reforger fix                         # fix safe ports, validate, doctor
 reforger open --host 127.0.0.1 --port 8080
+reforger discord configure
+reforger discord start
 
 # Advanced commands are still available:
 reforger init

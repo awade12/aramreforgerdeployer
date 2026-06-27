@@ -7,3 +7,4 @@ tools/
 *.log
 __pycache__/
 .ardr-web-auth.json
+.ardr-discord.ini

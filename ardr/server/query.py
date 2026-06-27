@@ -11,16 +11,26 @@ from ..core.terminal import heading, kv
 A2S_INFO = b"\xff\xff\xff\xffTSource Engine Query\x00"
 
 
-def query_server(instance: dict[str, Any], host: str, timeout: float) -> None:
+def query_info(instance: dict[str, Any], host: str, timeout: float = 3.0) -> dict[str, Any] | None:
     port = int(instance["queryPort"])
     started = time.monotonic()
     try:
         data = _request(host, port, timeout)
         info = _parse_info(data)
-    except OSError as exc:
-        raise SystemExit(f"Query failed for {host}:{port}: {exc}") from exc
-    ping_ms = (time.monotonic() - started) * 1000
-    heading("Live Query", f"{host}:{port} - {ping_ms:.0f} ms")
+    except OSError:
+        return None
+    info["ping_ms"] = round((time.monotonic() - started) * 1000)
+    info["host"] = host
+    info["port"] = port
+    return info
+
+
+def query_server(instance: dict[str, Any], host: str, timeout: float) -> None:
+    port = int(instance["queryPort"])
+    info = query_info(instance, host, timeout)
+    if info is None:
+        raise SystemExit(f"Query failed for {host}:{port}")
+    heading("Live Query", f"{host}:{port} - {info['ping_ms']} ms")
     kv((key.replace("_", " ").title(), info[key]) for key in ("name", "map", "folder", "game", "players", "max_players", "bots", "version") if key in info)
 
 

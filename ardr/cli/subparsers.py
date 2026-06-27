@@ -8,6 +8,7 @@ from ..commands import (
     cmd_check,
     cmd_debug,
     cmd_deploy,
+    cmd_discord,
     cmd_doctor,
     cmd_firewall,
     cmd_fix,
@@ -261,3 +262,18 @@ def add_web(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--password")
     p.add_argument("--auth-file", default=".ardr-web-auth.json")
     p.set_defaults(func=cmd_web)
+
+
+def add_discord(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser("discord", help="Post or update a live Discord status embed.")
+    p.add_argument(
+        "action",
+        choices=["configure", "status", "start", "sync", "post"],
+        help="configure=save secrets locally, status=show config, start=loop, sync=edit once, post=force new embed",
+    )
+    p.add_argument("--ini", default=".ardr-discord.ini", help="Local Discord secrets/config file (mode 600).")
+    p.add_argument("--channel-id", help="Discord channel ID override.")
+    p.add_argument("--token", help="Bot token for configure only. Prefer the hidden prompt.")
+    p.add_argument("--title", help="Embed title for configure.")
+    p.add_argument("--interval", type=int, help="Poll interval in seconds.")
+    p.set_defaults(func=cmd_discord)

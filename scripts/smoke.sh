@@ -46,6 +46,7 @@ from ardr.commands import (
     cmd_update,
     cmd_web,
     cmd_windows_task,
+    cmd_discord,
 )
 from ardr.config.commands import cmd_configure, cmd_default, cmd_init, cmd_validate
 from ardr.commands.registry import dispatch_table
@@ -79,9 +80,8 @@ run_cmd info reforger-1
 run_cmd deploy reforger-1
 run_cmd firewall apply --dry-run
 run_cmd systemd render
+run_cmd discord status
 
-python3 ardr.py validate
-python3 ardr.py status
-python3 ardr.py status reforger-1
+python3 -m unittest discover -s tests -v
 
 echo "All smoke checks passed."

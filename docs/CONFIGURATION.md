@@ -93,3 +93,50 @@ reforger ports --fix
 ```
 
 That rewrites `instances/*.json` with safe ports before rendering or starting servers.
+
+## Discord Status Embed
+
+Post a live server status embed to a Discord channel. The deployer edits one message instead of sending a new one every update.
+
+Secrets stay out of `deployer.json`. Reforger stores Discord settings in a local `.ardr-discord.ini` file with mode `600`, similar to the web dashboard auth file.
+
+```bash
+reforger discord configure
+reforger discord status
+reforger discord post
+reforger discord start
+```
+
+Example local file:
+
+```ini
+[discord]
+bot_token = your-bot-token-here
+channel_id = 1234567890123456789
+poll_interval_seconds = 30
+query_live = true
+title = Arma Reforger Server Status
+
+[state]
+channel_id = 1234567890123456789
+message_id =
+```
+
+Create a Discord bot in the [Discord Developer Portal](https://discord.com/developers/applications), invite it to your server with `Send Messages` and `Embed Links`, then run `reforger discord configure`.
+
+Commands:
+
+- `reforger discord configure` — create or update `.ardr-discord.ini`
+- `reforger discord status` — show saved settings without printing the token
+- `reforger discord post` — create the first embed and save its message ID
+- `reforger discord sync` — update the saved embed once
+- `reforger discord start` — keep updating the same embed on an interval
+
+For systemd or cron, you can override the token with an environment variable instead of storing it in the ini file:
+
+```bash
+export DISCORD_BOT_TOKEN="your-bot-token"
+reforger discord sync --ini /etc/ardr/discord.ini
+```
+
+If the saved message was deleted, the next sync automatically posts a new one and updates the saved message ID in the ini file.

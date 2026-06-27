@@ -1,0 +1,10 @@
+[discord]
+bot_token = your-bot-token-here
+channel_id = 1234567890123456789
+poll_interval_seconds = 30
+query_live = true
+title = Arma Reforger Server Status
+
+[state]
+channel_id = 1234567890123456789
+message_id =
