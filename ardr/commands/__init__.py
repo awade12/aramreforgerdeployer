@@ -22,6 +22,7 @@ from .handlers import (
     cmd_update,
     cmd_web,
     cmd_windows_task,
+    cmd_workshop,
 )
 from .lifecycle import cmd_debug, cmd_logs, cmd_pause, cmd_restart, cmd_resume, cmd_start, cmd_stop
 
@@ -56,4 +57,5 @@ __all__ = [
     "cmd_update",
     "cmd_web",
     "cmd_windows_task",
+    "cmd_workshop",
 ]

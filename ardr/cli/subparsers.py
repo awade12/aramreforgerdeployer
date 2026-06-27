@@ -33,6 +33,7 @@ from ..commands import (
     cmd_update,
     cmd_web,
     cmd_windows_task,
+    cmd_workshop,
 )
 from ..config.commands import cmd_configure, cmd_default, cmd_init, cmd_validate
 
@@ -166,6 +167,22 @@ def add_management(sub: argparse._SubParsersAction) -> None:
     add_mods(sub)
     add_query(sub)
     add_deploy(sub)
+    add_workshop(sub)
+
+
+def add_workshop(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser(
+        "workshop",
+        help="Apply scenario ID and dependency mods from a Reforger workshop URL.",
+    )
+    p.add_argument("url", help="Workshop URL or 16-character mod ID.")
+    p.add_argument("instance_name", nargs="?")
+    p.add_argument("--instance")
+    p.add_argument("--scenario", type=int, default=0, help="Scenario index when a mod has multiple scenarios.")
+    p.add_argument("--dry-run", action="store_true", help="Show scenario and mods without saving.")
+    p.add_argument("--merge", action="store_true", help="Merge mods instead of replacing the mods list.")
+    p.add_argument("--set-name", action="store_true", help="Set server.name to the selected scenario name.")
+    p.set_defaults(func=cmd_workshop)
 
 
 def add_service(sub: argparse._SubParsersAction) -> None:

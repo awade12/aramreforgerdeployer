@@ -25,6 +25,7 @@ from .handlers import (
     cmd_update,
     cmd_web,
     cmd_windows_task,
+    cmd_workshop,
 )
 from .lifecycle import cmd_debug, cmd_logs, cmd_pause, cmd_restart, cmd_resume, cmd_start, cmd_stop
 
@@ -70,5 +71,6 @@ def dispatch_table() -> dict[str, callable]:
         "launch": cmd_deploy,
         "web": cmd_web,
         "open": cmd_web,
+        "workshop": cmd_workshop,
         "menu": cmd_menu,
     }

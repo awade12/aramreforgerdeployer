@@ -23,6 +23,7 @@ from .management import cmd_firewall as run_firewall
 from .management import cmd_mods as run_mods
 from .management import cmd_query as run_query
 from .management import cmd_service as run_service
+from .workshop import cmd_workshop as run_workshop
 
 
 def cmd_render(args: argparse.Namespace) -> None:
@@ -154,3 +155,7 @@ def cmd_setup(args: argparse.Namespace) -> None:
 
 def cmd_web(args: argparse.Namespace) -> None:
     serve_web(args.config, args.host, args.port, args.password, args.auth_file)
+
+
+def cmd_workshop(args: argparse.Namespace) -> None:
+    run_workshop(args, load_with_ports)
