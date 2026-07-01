@@ -46,6 +46,9 @@ def _game_block(instance: dict[str, Any], server: dict[str, Any]) -> dict[str, A
             "battlEye": bool(server.get("battlEye", True)),
         },
     }
+    admins = server.get("admins")
+    if admins:
+        game["admins"] = [str(item) for item in admins]
     if instance.get("mods"):
         game["mods"] = instance["mods"]
     return game
