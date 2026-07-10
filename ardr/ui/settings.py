@@ -29,14 +29,17 @@ def edit_server(config_path: Path, config: dict[str, Any], instance: dict[str, A
             return
         before = copy.deepcopy(instance)
         if choice == "1":
-            server["name"] = prompt("Server name", str(server.get("name", instance["name"])))
-            server["visible"] = prompt_bool("Show in the public server browser", bool(server.get("visible", True)))
+            if not _edit_identity(server, instance):
+                continue
         elif choice == "2":
-            _edit_access(server)
+            if not _edit_access(server):
+                continue
         elif choice == "3":
-            _edit_gameplay(instance, server)
+            if not _edit_gameplay(instance, server):
+                continue
         elif choice == "4":
-            _edit_network(instance, server)
+            if not _edit_network(instance, server):
+                continue
         elif choice == "5":
             _show_mod_help(instance)
             continue
@@ -49,28 +52,90 @@ def edit_server(config_path: Path, config: dict[str, Any], instance: dict[str, A
         _save_if_confirmed(config_path, config, instance, before)
 
 
-def _edit_access(server: dict[str, Any]) -> None:
-    server["password"] = _secret("Join password", str(server.get("password", "")), allow_clear=True)
-    server["adminPassword"] = _secret("Admin password", str(server.get("adminPassword", "")), allow_clear=False)
-    server["maxPlayers"] = _bounded_int("Player slots", int(server.get("maxPlayers", 64)), 1, 256)
+def _edit_identity(server: dict[str, Any], instance: dict[str, Any]) -> bool:
+    print("\n  1. Server name")
+    print("  2. Public browser visibility")
+    print("  0. Back")
+    choice = input("What would you like to change? ").strip()
+    if choice == "1":
+        server["name"] = prompt("Server name", str(server.get("name", instance["name"])))
+        return True
+    if choice == "2":
+        server["visible"] = prompt_bool("Show in the public server browser", bool(server.get("visible", True)))
+        return True
+    if choice == "0":
+        return False
+    note("Choose one of the numbers shown.")
+    return False
+
+
+def _edit_access(server: dict[str, Any]) -> bool:
+    print("\n  1. Join password")
+    print("  2. Admin password")
+    print("  3. Player slots")
+    print("  4. Admin IDs")
+    print("  0. Back")
+    choice = input("What would you like to change? ").strip()
+    if choice == "1":
+        server["password"] = _secret("Join password", str(server.get("password", "")), allow_clear=True)
+        return True
+    if choice == "2":
+        server["adminPassword"] = _secret("Admin password", str(server.get("adminPassword", "")), allow_clear=False)
+        return True
+    if choice == "3":
+        server["maxPlayers"] = _bounded_int("Player slots", int(server.get("maxPlayers", 64)), 1, 256)
+        return True
+    if choice != "4":
+        if choice != "0":
+            note("Choose one of the numbers shown.")
+        return False
     current = ", ".join(str(value) for value in server.get("admins", []))
     raw = prompt("Admin IDs, comma-separated (leave blank to keep existing)", current)
     if raw != current:
         server["admins"] = [item.strip() for item in raw.split(",") if item.strip()]
+    return True
 
 
-def _edit_gameplay(instance: dict[str, Any], server: dict[str, Any]) -> None:
-    server["scenarioId"] = prompt("Scenario ID", str(server.get("scenarioId", "")))
-    instance["maxFPS"] = _bounded_int("Maximum server FPS", int(instance.get("maxFPS", 60)), 1, 360)
-    disable_third = bool(server.get("disableThirdPerson", False))
-    server["disableThirdPerson"] = not prompt_bool("Allow third-person camera", not disable_third)
-    server["battlEye"] = prompt_bool("Enable BattlEye", bool(server.get("battlEye", True)))
+def _edit_gameplay(instance: dict[str, Any], server: dict[str, Any]) -> bool:
+    print("\n  1. Scenario")
+    print("  2. Maximum server FPS")
+    print("  3. Third-person camera")
+    print("  4. BattlEye")
+    print("  0. Back")
+    choice = input("What would you like to change? ").strip()
+    if choice == "1":
+        server["scenarioId"] = prompt("Scenario ID", str(server.get("scenarioId", "")))
+    elif choice == "2":
+        instance["maxFPS"] = _bounded_int("Maximum server FPS", int(instance.get("maxFPS", 60)), 1, 360)
+    elif choice == "3":
+        disable_third = bool(server.get("disableThirdPerson", False))
+        server["disableThirdPerson"] = not prompt_bool("Allow third-person camera", not disable_third)
+    elif choice == "4":
+        server["battlEye"] = prompt_bool("Enable BattlEye", bool(server.get("battlEye", True)))
+    else:
+        if choice != "0":
+            note("Choose one of the numbers shown.")
+        return False
+    return True
 
 
-def _edit_network(instance: dict[str, Any], server: dict[str, Any]) -> None:
-    server["publicAddress"] = prompt("Public IP or domain", str(server.get("publicAddress", "")))
-    instance["port"] = _bounded_int("Game UDP port", int(instance.get("port", 2001)), 1024, 65535)
-    instance["queryPort"] = _bounded_int("Query UDP port", int(instance.get("queryPort", 17777)), 1024, 65535)
+def _edit_network(instance: dict[str, Any], server: dict[str, Any]) -> bool:
+    print("\n  1. Public IP or domain")
+    print("  2. Game UDP port")
+    print("  3. Query UDP port")
+    print("  0. Back")
+    choice = input("What would you like to change? ").strip()
+    if choice == "1":
+        server["publicAddress"] = prompt("Public IP or domain", str(server.get("publicAddress", "")))
+    elif choice == "2":
+        instance["port"] = _bounded_int("Game UDP port", int(instance.get("port", 2001)), 1024, 65535)
+    elif choice == "3":
+        instance["queryPort"] = _bounded_int("Query UDP port", int(instance.get("queryPort", 17777)), 1024, 65535)
+    else:
+        if choice != "0":
+            note("Choose one of the numbers shown.")
+        return False
+    return True
 
 
 def _secret(label: str, current: str, allow_clear: bool) -> str:
