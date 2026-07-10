@@ -106,6 +106,8 @@ reforger ports --fix
 
 The easiest way to work is server-first: put the server name first, then say what you want.
 
+You can run `reforger` from any directory. It automatically finds the deployer config beside the installed command (or use `--config /path/to/deployer.json` when managing a different server).
+
 ```bash
 reforger testingserver              # show a friendly summary and the next best step
 reforger testingserver on           # start it (also: start)

@@ -11,6 +11,7 @@ from unittest.mock import patch
 from ardr.cli import _friendly_argv, main
 from ardr.cli.parser import build_parser
 from ardr.config import load_config
+from ardr.config.discovery import resolve_config_path
 from ardr.config.commands import cmd_configure, cmd_setup
 from ardr.config.io import save_config
 from ardr.config.sample import sample_config
@@ -64,6 +65,17 @@ class EasyCliTests(unittest.TestCase):
         self.assertIn("Config preview", output.getvalue())
         self.assertIn("No changes were saved", output.getvalue())
         self.assertNotEqual("Preview Name", config["instances"][0]["server"]["name"])
+
+    def test_explicit_config_path_is_never_overridden(self) -> None:
+        self.assertEqual("/tmp/custom.json", resolve_config_path("/tmp/custom.json"))
+
+    def test_config_is_found_next_to_installed_launcher(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "aramreforgerdeployer"
+            root.mkdir()
+            (root / "deployer.json").write_text("{}", encoding="utf-8")
+            with patch("ardr.config.discovery.Path.cwd", return_value=Path(directory) / "elsewhere"), patch("sys.argv", [str(root / "reforger")]):
+                self.assertEqual(str((root / "deployer.json").resolve()), resolve_config_path(None))
 
     def test_server_first_shortcuts_are_translated(self) -> None:
         self.assertEqual(["hub", "testingserver"], _friendly_argv(["testingserver"]))

@@ -1,6 +1,7 @@
 import sys
 
 from .parser import build_parser
+from ..config.discovery import resolve_config_path
 from ..ui.home import show_home
 
 
@@ -30,6 +31,7 @@ _EASY_ACTIONS = {
 
 def main() -> None:
     args = build_parser().parse_args(_friendly_argv(sys.argv[1:]))
+    args.config = resolve_config_path(args.config)
     if not hasattr(args, "func"):
         show_home(args)
         return
