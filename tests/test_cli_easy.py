@@ -8,7 +8,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
-from ardr.cli import main
+from ardr.cli import _friendly_argv, main
 from ardr.cli.parser import build_parser
 from ardr.config import load_config
 from ardr.config.commands import cmd_setup
@@ -48,3 +48,10 @@ class EasyCliTests(unittest.TestCase):
         self.assertLessEqual(len(labels), 10)
         self.assertIn("Start selected server", labels)
         self.assertIn("More tools", labels)
+
+    def test_server_first_shortcuts_are_translated(self) -> None:
+        self.assertEqual(["info", "testingserver"], _friendly_argv(["testingserver"]))
+        self.assertEqual(["start", "testingserver"], _friendly_argv(["testingserver", "on"]))
+        self.assertEqual(["logs", "testingserver", "--lines", "20"], _friendly_argv(["testingserver", "logs", "--lines", "20"]))
+        self.assertEqual(["--config", "mine.json", "stop", "testingserver"], _friendly_argv(["--config", "mine.json", "testingserver", "off"]))
+        self.assertEqual(["backup", "create", "testingserver"], _friendly_argv(["testingserver", "backup"]))

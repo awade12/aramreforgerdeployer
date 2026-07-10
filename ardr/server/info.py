@@ -75,6 +75,17 @@ def show_info(config_path: Path, config: dict[str, Any], instance: dict[str, Any
         ]
     )
 
+    section("Easy Server-First Shortcuts")
+    commands(
+        [
+            (f"reforger {name}", "open this server's summary"),
+            (f"reforger {name} start", "start it (you can also say `on`)"),
+            (f"reforger {name} stop", "stop it (you can also say `off`)"),
+            (f"reforger {name} logs", "show recent logs"),
+            (f"reforger {name} health", "run readiness checks"),
+        ]
+    )
+
     section("Setup & Fix")
     commands(
         [

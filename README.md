@@ -104,6 +104,19 @@ reforger ports --fix
 
 ## Common Commands
 
+The easiest way to work is server-first: put the server name first, then say what you want.
+
+```bash
+reforger testingserver              # show a friendly summary and the next best step
+reforger testingserver on           # start it (also: start)
+reforger testingserver off          # stop it (also: stop)
+reforger testingserver logs         # show logs
+reforger testingserver health       # run readiness checks
+reforger testingserver backup       # create a backup
+```
+
+The original command-first style continues to work too:
+
 ```bash
 reforger setup                       # guided first-time setup, safe ports, checks
 reforger launch reforger-1           # preview first deploy
