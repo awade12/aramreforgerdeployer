@@ -7,9 +7,12 @@ from .subparsers import add_basic, add_discord, add_lifecycle, add_management, a
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Deploy and manage many Arma Reforger dedicated servers.")
+    parser = argparse.ArgumentParser(
+        description="The friendly command-line manager for Arma Reforger dedicated servers.",
+        epilog="New here? Run `reforger setup`. Day to day, `reforger`, `reforger info`, and `reforger menu` are great places to start.",
+    )
     parser.add_argument("--config", default=DEFAULT_CONFIG, help="Path to deployer JSON config.")
-    sub = parser.add_subparsers(dest="command", required=True)
+    sub = parser.add_subparsers(dest="command")
     add_basic(sub)
     add_lifecycle(sub)
     add_platform(sub)

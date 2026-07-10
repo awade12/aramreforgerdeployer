@@ -155,10 +155,9 @@ def cmd_fix(args: argparse.Namespace) -> None:
 
 
 def cmd_setup(args: argparse.Namespace) -> None:
-    from ..config.commands import cmd_configure
+    from ..config.commands import cmd_setup
 
-    cmd_configure(args)
-    cmd_fix(args)
+    cmd_setup(args)
 
 
 def cmd_web(args: argparse.Namespace) -> None:

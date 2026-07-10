@@ -46,7 +46,7 @@ def add_basic(sub: argparse._SubParsersAction) -> None:
     p = sub.add_parser("default", help="Show or set the default server.")
     p.add_argument("instance_name", nargs="?")
     p.set_defaults(func=cmd_default)
-    p = sub.add_parser("setup", help="Guided first-time setup and checks.")
+    p = sub.add_parser("setup", aliases=["quickstart"], help="Easy first-time setup with only the important questions.")
     p.add_argument("instance_name", nargs="?")
     p.add_argument("--instance")
     p.set_defaults(func=cmd_setup)

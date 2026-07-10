@@ -1,0 +1,50 @@
+from __future__ import annotations
+
+import argparse
+import io
+import tempfile
+import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
+from unittest.mock import patch
+
+from ardr.cli import main
+from ardr.cli.parser import build_parser
+from ardr.config import load_config
+from ardr.config.commands import cmd_setup
+from ardr.ui.menu import _actions
+
+
+class EasyCliTests(unittest.TestCase):
+    def test_no_command_explains_how_to_start(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, patch("sys.argv", ["reforger", "--config", str(Path(directory) / "missing.json")]):
+            output = io.StringIO()
+            with redirect_stdout(output):
+                main()
+        self.assertIn("reforger setup", output.getvalue())
+        self.assertIn("No server is set up", output.getvalue())
+
+    def test_quickstart_alias_keeps_setup_handler(self) -> None:
+        args = build_parser().parse_args(["quickstart"])
+        self.assertEqual("quickstart", args.command)
+        self.assertEqual("cmd_setup", args.func.__name__)
+
+    def test_setup_creates_a_ready_default_server(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "deployer.json"
+            args = argparse.Namespace(config=str(path), instance=None, instance_name=None)
+            with patch("builtins.input", side_effect=["Friendly Server", "admin-secret", "", "32", "", "n"]):
+                with redirect_stdout(io.StringIO()):
+                    cmd_setup(args)
+            _, config = load_config(str(path))
+        self.assertEqual("reforger-1", config["defaultInstance"])
+        self.assertEqual("Friendly Server", config["instances"][0]["server"]["name"])
+        self.assertEqual(32, config["instances"][0]["server"]["maxPlayers"])
+        self.assertIn("port", config["instances"][0])
+        self.assertIn("queryPort", config["instances"][0])
+
+    def test_menu_keeps_everyday_actions_short(self) -> None:
+        labels = [label for _, label, _ in _actions(False)]
+        self.assertLessEqual(len(labels), 10)
+        self.assertIn("Start selected server", labels)
+        self.assertIn("More tools", labels)
