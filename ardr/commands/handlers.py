@@ -12,7 +12,9 @@ from ..platform.services import manage_windows_task, render_systemd
 from ..deploy.backup import create_backup
 from ..server.battleye import append_rcon
 from ..server.info import show_info
+from ..server.invite import print_invite
 from ..server.ops import install_instances, show_ports, update_instances
+from ..server.resources import show_resources
 from ..server.render import render_instances
 from ..server.status import status_row
 from ..ui.menu import interactive_loop
@@ -74,6 +76,28 @@ def cmd_status(args: argparse.Namespace) -> None:
 def cmd_info(args: argparse.Namespace) -> None:
     config_path, config, instance = one_instance(args, "info")
     show_info(config_path, config, instance)
+
+
+def cmd_resources(args: argparse.Namespace) -> None:
+    config_path, config, instance = one_instance(args, "resources")
+    show_resources(config_path, config, instance, float(args.watch))
+
+
+def cmd_invite(args: argparse.Namespace) -> None:
+    _, _, instance = one_instance(args, "invite")
+    print_invite(instance)
+
+
+def cmd_export(args: argparse.Namespace) -> None:
+    from ..config.transfer import export_instance
+
+    export_instance(args.config, args.instance_name or args.instance, args.output)
+
+
+def cmd_import(args: argparse.Namespace) -> None:
+    from ..config.transfer import import_instance
+
+    import_instance(args.config, args.source, args.new_name)
 
 
 def cmd_query(args: argparse.Namespace) -> None:

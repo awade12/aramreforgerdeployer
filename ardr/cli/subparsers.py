@@ -13,9 +13,12 @@ from ..commands import (
     cmd_doctor,
     cmd_firewall,
     cmd_fix,
+    cmd_export,
     cmd_install,
     cmd_info,
     cmd_hub,
+    cmd_import,
+    cmd_invite,
     cmd_linuxgsm,
     cmd_linux_user,
     cmd_logs,
@@ -25,6 +28,7 @@ from ..commands import (
     cmd_ports,
     cmd_query,
     cmd_render,
+    cmd_resources,
     cmd_restart,
     cmd_resume,
     cmd_service,
@@ -86,6 +90,24 @@ def add_basic(sub: argparse._SubParsersAction) -> None:
     p = sub.add_parser("completion", help="Print Bash or Zsh tab-completion setup.")
     p.add_argument("shell", choices=["bash", "zsh", "servers"])
     p.set_defaults(func=cmd_completion)
+    p = sub.add_parser("resources", aliases=["dashboard"], help="Show CPU, RAM, disk, and live player resources.")
+    p.add_argument("instance_name", nargs="?")
+    p.add_argument("--instance")
+    p.add_argument("--watch", type=float, default=0, help="Refresh every N seconds.")
+    p.set_defaults(func=cmd_resources)
+    p = sub.add_parser("invite", aliases=["share"], help="Print a clean player invite message.")
+    p.add_argument("instance_name", nargs="?")
+    p.add_argument("--instance")
+    p.set_defaults(func=cmd_invite)
+    p = sub.add_parser("export", help="Export one server config as a portable JSON file.")
+    p.add_argument("instance_name")
+    p.add_argument("output")
+    p.add_argument("--instance")
+    p.set_defaults(func=cmd_export)
+    p = sub.add_parser("import", help="Import a server from a portable JSON export.")
+    p.add_argument("source")
+    p.add_argument("--as", dest="new_name", help="Give the imported server a new name.")
+    p.set_defaults(func=cmd_import)
 
 
 def add_lifecycle(sub: argparse._SubParsersAction) -> None:

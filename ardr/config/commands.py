@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 from typing import Any
 
 from ..core.paths import norm_path
@@ -25,10 +26,15 @@ def cmd_init(args: argparse.Namespace) -> None:
 def cmd_configure(args: argparse.Namespace) -> None:
     path = norm_path(args.config)
     config = load_config(args.config)[1] if path.exists() else {"baseDir": "./deployments", "steamcmd": "steamcmd", "instanceDir": "instances", "instances": []}
+    before = copy.deepcopy(config)
     config["baseDir"] = prompt("Base deploy directory", str(config.get("baseDir", "./deployments")))
     config["steamcmd"] = prompt("SteamCMD command/path", str(config.get("steamcmd", "steamcmd")))
     config.setdefault("instances", [])
     _upsert_instance(config, _arg_instance(args))
+    _preview_changes(before, config)
+    if not prompt_bool("Save these changes", True):
+        print("No changes were saved.")
+        return
     normalize_config_ports(config)
     save_config(path, config)
     _print_validation(config)
@@ -143,3 +149,33 @@ def _next_instance_name(config: dict[str, Any]) -> str:
     while f"reforger-{index}" in used:
         index += 1
     return f"reforger-{index}"
+
+
+def _preview_changes(before: dict[str, Any], after: dict[str, Any]) -> None:
+    changes = _changes(before, after)
+    print("\nConfig preview")
+    print("--------------")
+    if not changes:
+        print("  No changes.")
+        return
+    for path, old, new in changes:
+        print(f"  {path}: {old!r} → {new!r}")
+
+
+def _changes(before: Any, after: Any, path: str = "") -> list[tuple[str, Any, Any]]:
+    if isinstance(before, dict) and isinstance(after, dict):
+        result: list[tuple[str, Any, Any]] = []
+        for key in sorted(set(before) | set(after)):
+            next_path = f"{path}.{key}" if path else str(key)
+            result.extend(_changes(before.get(key), after.get(key), next_path))
+        return result
+    if isinstance(before, list) and isinstance(after, list):
+        result = []
+        for index in range(max(len(before), len(after))):
+            old = before[index] if index < len(before) else "<not set>"
+            new = after[index] if index < len(after) else "<not set>"
+            result.extend(_changes(old, new, f"{path}[{index}]"))
+        return result
+    if before != after:
+        return [(path, before, after)]
+    return []

@@ -114,6 +114,10 @@ reforger testingserver logs         # show logs
 reforger testingserver health       # run readiness checks
 reforger testingserver backup       # create a backup
 reforger testingserver mod add <workshop-url>  # add a Workshop scenario and its dependencies
+reforger testingserver resources    # CPU, RAM, disk, and player dashboard
+reforger testingserver invite       # print a shareable player invite
+reforger testingserver export server.json  # save a portable server config
+reforger import server.json --as another-server  # load it on another host
 ```
 
 The original command-first style continues to work too:
@@ -176,6 +180,10 @@ reforger battleye --instance reforger-1 --rcon-port 5678 --rcon-password "change
 `reforger testingserver` opens a small interactive control room for that server. Updates create a backup before making changes, and stopping, restarting, updating, restoring, or applying firewall rules asks for confirmation. Use `--yes` only when you intentionally need to automate one of those actions.
 
 The latest log view highlights errors and warnings. Run `reforger doctor` or `reforger testingserver health` for a readiness scorecard with copy-paste fixes.
+
+`reforger testingserver resources --watch 2` refreshes the terminal dashboard every two seconds. It shows CPU, RAM, disk use, player count, ping, and uptime when available. Tick/FPS is shown honestly as unavailable until Reforger exposes it through its server query.
+
+When using `reforger configure`, every pending setting is shown in a clear **Config preview** before anything is saved. Choose `n` to discard it.
 
 ### Tab Completion
 

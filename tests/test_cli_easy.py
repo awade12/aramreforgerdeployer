@@ -11,7 +11,9 @@ from unittest.mock import patch
 from ardr.cli import _friendly_argv, main
 from ardr.cli.parser import build_parser
 from ardr.config import load_config
-from ardr.config.commands import cmd_setup
+from ardr.config.commands import cmd_configure, cmd_setup
+from ardr.config.io import save_config
+from ardr.config.sample import sample_config
 from ardr.ui.menu import _actions
 
 
@@ -48,6 +50,20 @@ class EasyCliTests(unittest.TestCase):
         self.assertLessEqual(len(labels), 10)
         self.assertIn("Start selected server", labels)
         self.assertIn("More tools", labels)
+
+    def test_configure_shows_preview_and_can_cancel(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "deployer.json"
+            save_config(path, sample_config())
+            args = argparse.Namespace(config=str(path), instance="reforger-1", instance_name=None)
+            answers = ["", "", "", "", "", "", "", "Preview Name", "", "", "", "", "", "", "n"]
+            output = io.StringIO()
+            with patch("builtins.input", side_effect=answers), redirect_stdout(output):
+                cmd_configure(args)
+            _, config = load_config(str(path))
+        self.assertIn("Config preview", output.getvalue())
+        self.assertIn("No changes were saved", output.getvalue())
+        self.assertNotEqual("Preview Name", config["instances"][0]["server"]["name"])
 
     def test_server_first_shortcuts_are_translated(self) -> None:
         self.assertEqual(["hub", "testingserver"], _friendly_argv(["testingserver"]))

@@ -13,7 +13,7 @@ _COMMANDS = {
     "update", "logs", "tail", "systemd", "windows-task", "battleye", "linux-user",
     "service", "firewall", "backup", "mods", "query", "deploy", "launch", "workshop",
     "web", "open", "discord",
-    "hub", "completion",
+    "hub", "completion", "resources", "dashboard", "invite", "share", "export", "import",
 }
 _EASY_ACTIONS = {
     "on": "start", "run": "start", "start": "start", "up": "start",
@@ -24,6 +24,7 @@ _EASY_ACTIONS = {
     "update": "update", "install": "install", "render": "render", "deploy": "deploy",
     "query": "query", "ports": "ports", "pause": "pause", "resume": "resume", "debug": "debug",
     "fix": "fix", "repair": "fix", "backup": "backup", "info": "info", "help": "info",
+    "resources": "resources", "dashboard": "resources", "invite": "invite", "share": "invite",
 }
 
 
@@ -45,6 +46,8 @@ def _friendly_argv(argv: list[str]) -> list[str]:
         return prefix + ["hub", server]
     if remainder[1].lower() in {"mod", "mods"}:
         return _mod_shortcut(prefix, server, remainder[2:])
+    if remainder[1].lower() in {"export", "save"} and len(remainder) > 2:
+        return prefix + ["export", server, remainder[2]] + remainder[3:]
     action = _EASY_ACTIONS.get(remainder[1].lower())
     if action:
         if action == "backup":
