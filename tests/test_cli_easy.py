@@ -87,3 +87,4 @@ class EasyCliTests(unittest.TestCase):
             ["workshop", "https://reforger.armaplatform.com/workshop/ABC", "testingserver", "--merge"],
             _friendly_argv(["testingserver", "mod", "add", "https://reforger.armaplatform.com/workshop/ABC"]),
         )
+        self.assertEqual(["where", "testingserver"], _friendly_argv(["testingserver", "where"]))

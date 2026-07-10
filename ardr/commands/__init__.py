@@ -28,6 +28,7 @@ from .handlers import (
     cmd_systemd,
     cmd_update,
     cmd_web,
+    cmd_where,
     cmd_windows_task,
     cmd_workshop,
 )
@@ -70,6 +71,7 @@ __all__ = [
     "cmd_systemd",
     "cmd_update",
     "cmd_web",
+    "cmd_where",
     "cmd_windows_task",
     "cmd_workshop",
 ]

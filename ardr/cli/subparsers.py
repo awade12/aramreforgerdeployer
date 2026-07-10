@@ -39,6 +39,7 @@ from ..commands import (
     cmd_systemd,
     cmd_update,
     cmd_web,
+    cmd_where,
     cmd_windows_task,
     cmd_workshop,
 )
@@ -95,6 +96,10 @@ def add_basic(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--instance")
     p.add_argument("--watch", type=float, default=0, help="Refresh every N seconds.")
     p.set_defaults(func=cmd_resources)
+    p = sub.add_parser("where", help="Show the resolved config, install, log, and backup locations.")
+    p.add_argument("instance_name", nargs="?")
+    p.add_argument("--instance")
+    p.set_defaults(func=cmd_where)
     p = sub.add_parser("invite", aliases=["share"], help="Print a clean player invite message.")
     p.add_argument("instance_name", nargs="?")
     p.add_argument("--instance")

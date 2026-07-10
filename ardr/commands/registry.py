@@ -30,6 +30,7 @@ from .handlers import (
     cmd_systemd,
     cmd_update,
     cmd_web,
+    cmd_where,
     cmd_windows_task,
     cmd_workshop,
 )
@@ -84,5 +85,6 @@ def dispatch_table() -> dict[str, callable]:
         "web": cmd_web,
         "open": cmd_web,
         "workshop": cmd_workshop,
+        "where": cmd_where,
         "menu": cmd_menu,
     }

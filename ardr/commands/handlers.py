@@ -17,6 +17,7 @@ from ..server.ops import install_instances, show_ports, update_instances
 from ..server.resources import show_resources
 from ..server.render import render_instances
 from ..server.status import status_row
+from ..server.where import show_where
 from ..ui.menu import interactive_loop
 from ..ui.hub import server_hub
 from ..integrations.discord import (
@@ -81,6 +82,11 @@ def cmd_info(args: argparse.Namespace) -> None:
 def cmd_resources(args: argparse.Namespace) -> None:
     config_path, config, instance = one_instance(args, "resources")
     show_resources(config_path, config, instance, float(args.watch))
+
+
+def cmd_where(args: argparse.Namespace) -> None:
+    config_path, config = load_with_ports(args)
+    show_where(config_path, config, many_instance_name(args))
 
 
 def cmd_invite(args: argparse.Namespace) -> None:
