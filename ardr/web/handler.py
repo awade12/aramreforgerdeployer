@@ -36,6 +36,8 @@ def build_handler(state: WebState):
                 return self._html(self._action())
             if self.path == "/mods/add":
                 return self._html(self._add_mod())
+            if self.path == "/settings":
+                return self._html(self._save_settings())
             return self._text("Not found", HTTPStatus.NOT_FOUND)
 
         def _dashboard(self, selected: str | None) -> str:
@@ -78,6 +80,31 @@ def build_handler(state: WebState):
             config_path, config = _config()
             output = capture_output(lambda: add_mod(config_path, config, instance_name, mod_id, mod_name, ""))
             return self._panel(instance_name, output, action="add mod")
+
+        def _save_settings(self) -> str:
+            form = self._form()
+            instance_name = form.get("instance", [""])[0]
+            config_path, config = _config()
+            try:
+                instance = select_instances(config, instance_name)[0]
+                server = instance.setdefault("server", {})
+                instance["port"] = _valid_port(form.get("port", [""])[0], "Game port")
+                instance["queryPort"] = _valid_port(form.get("query_port", [""])[0], "Query port")
+                max_players = int(form.get("max_players", [""])[0])
+                if not 1 <= max_players <= 256:
+                    raise ValueError("Player slots must be between 1 and 256.")
+                server["name"] = _required(form.get("server_name", [""])[0], "Server name")
+                server["scenarioId"] = _required(form.get("scenario_id", [""])[0], "Scenario ID")
+                server["maxPlayers"] = max_players
+                server["visible"] = form.get("visible", [""])[0] == "yes"
+                password = form.get("password", [""])[0]
+                if password:
+                    server["password"] = password
+                save_config(config_path, config)
+                output = "Your server settings were saved. Render the server setup before the next start if it is already installed."
+                return self._panel(instance_name, output, action="settings saved")
+            except (ValueError, SystemExit) as exc:
+                return self._panel(instance_name, f"ERROR: {exc}", action="settings saved")
 
         def _login(self) -> None:
             password = self._form().get("password", [""])[0]
@@ -137,3 +164,20 @@ def build_handler(state: WebState):
 
 def query_param(query: str, key: str) -> str | None:
     return parse_qs(query).get(key, [None])[0]
+
+
+def _required(value: str, label: str) -> str:
+    value = value.strip()
+    if not value:
+        raise ValueError(f"{label} cannot be empty.")
+    return value
+
+
+def _valid_port(value: str, label: str) -> int:
+    try:
+        port = int(value)
+    except ValueError as exc:
+        raise ValueError(f"{label} must be a number.") from exc
+    if not 1024 <= port <= 65535:
+        raise ValueError(f"{label} must be between 1024 and 65535.")
+    return port
