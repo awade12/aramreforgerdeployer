@@ -18,6 +18,7 @@ from ..server.resources import show_resources
 from ..server.render import render_instances
 from ..server.status import status_row
 from ..server.where import show_where
+from ..ui.editor import open_in_micro
 from ..ui.menu import interactive_loop
 from ..ui.hub import server_hub
 from ..integrations.discord import (
@@ -87,6 +88,18 @@ def cmd_resources(args: argparse.Namespace) -> None:
 def cmd_where(args: argparse.Namespace) -> None:
     config_path, config = load_with_ports(args)
     show_where(config_path, config, many_instance_name(args))
+
+
+def cmd_edit(args: argparse.Namespace) -> None:
+    from ..config.instances import instance_dir_path
+
+    config_path, config = load_with_ports(args)
+    name = many_instance_name(args)
+    if not name:
+        open_in_micro(config_path)
+        return
+    instance = select_instances(config, name)[0]
+    open_in_micro(instance_dir_path(config_path, config) / f"{instance['name']}.json")
 
 
 def cmd_invite(args: argparse.Namespace) -> None:

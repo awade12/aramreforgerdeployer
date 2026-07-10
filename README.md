@@ -110,6 +110,8 @@ You can run `reforger` from any directory. It automatically finds the deployer c
 
 Run `reforger where` at any time to see the exact config, project, install, log, generated-file, and backup locations in use. Use `reforger testingserver where` for one server.
 
+For beginner-friendly editing, use `reforger edit` to open the main config or `reforger testingserver edit` for one server. The tool offers to install the simple Micro editor when it is missing; it always asks before installing anything.
+
 ```bash
 reforger testingserver              # show a friendly summary and the next best step
 reforger testingserver on           # start it (also: start)

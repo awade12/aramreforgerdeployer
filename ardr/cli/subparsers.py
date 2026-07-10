@@ -11,6 +11,7 @@ from ..commands import (
     cmd_deploy,
     cmd_discord,
     cmd_doctor,
+    cmd_edit,
     cmd_firewall,
     cmd_fix,
     cmd_export,
@@ -100,6 +101,10 @@ def add_basic(sub: argparse._SubParsersAction) -> None:
     p.add_argument("instance_name", nargs="?")
     p.add_argument("--instance")
     p.set_defaults(func=cmd_where)
+    p = sub.add_parser("edit", help="Open deployer JSON in the beginner-friendly Micro editor.")
+    p.add_argument("instance_name", nargs="?")
+    p.add_argument("--instance")
+    p.set_defaults(func=cmd_edit)
     p = sub.add_parser("invite", aliases=["share"], help="Print a clean player invite message.")
     p.add_argument("instance_name", nargs="?")
     p.add_argument("--instance")

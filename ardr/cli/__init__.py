@@ -14,7 +14,7 @@ _COMMANDS = {
     "update", "logs", "tail", "systemd", "windows-task", "battleye", "linux-user",
     "service", "firewall", "backup", "mods", "query", "deploy", "launch", "workshop",
     "web", "open", "discord",
-    "hub", "completion", "resources", "dashboard", "invite", "share", "export", "import", "where",
+    "hub", "completion", "resources", "dashboard", "invite", "share", "export", "import", "where", "edit",
 }
 _EASY_ACTIONS = {
     "on": "start", "run": "start", "start": "start", "up": "start",
@@ -27,6 +27,7 @@ _EASY_ACTIONS = {
     "fix": "fix", "repair": "fix", "backup": "backup", "info": "info", "help": "info",
     "resources": "resources", "dashboard": "resources", "invite": "invite", "share": "invite",
     "where": "where",
+    "edit": "edit",
 }
 
 
