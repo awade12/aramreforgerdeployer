@@ -104,6 +104,7 @@ def add_basic(sub: argparse._SubParsersAction) -> None:
     p = sub.add_parser("edit", help="Open deployer JSON in the beginner-friendly Micro editor.")
     p.add_argument("instance_name", nargs="?")
     p.add_argument("--instance")
+    p.add_argument("--raw", action="store_true", help="Open a server's raw JSON in Micro instead of the guided editor.")
     p.set_defaults(func=cmd_edit)
     p = sub.add_parser("invite", aliases=["share"], help="Print a clean player invite message.")
     p.add_argument("instance_name", nargs="?")

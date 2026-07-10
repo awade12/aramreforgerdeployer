@@ -92,6 +92,7 @@ def cmd_where(args: argparse.Namespace) -> None:
 
 def cmd_edit(args: argparse.Namespace) -> None:
     from ..config.instances import instance_dir_path
+    from ..ui.settings import edit_server
 
     config_path, config = load_with_ports(args)
     name = many_instance_name(args)
@@ -99,6 +100,9 @@ def cmd_edit(args: argparse.Namespace) -> None:
         open_in_micro(config_path)
         return
     instance = select_instances(config, name)[0]
+    if not getattr(args, "raw", False):
+        edit_server(config_path, config, instance)
+        return
     open_in_micro(instance_dir_path(config_path, config) / f"{instance['name']}.json")
 
 

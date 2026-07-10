@@ -50,6 +50,8 @@ def _friendly_argv(argv: list[str]) -> list[str]:
         return prefix + ["hub", server]
     if remainder[1].lower() in {"mod", "mods"}:
         return _mod_shortcut(prefix, server, remainder[2:])
+    if remainder[1].lower() == "edit" and len(remainder) > 2 and remainder[2].lower() == "raw":
+        return prefix + ["edit", server, "--raw"] + remainder[3:]
     if remainder[1].lower() in {"export", "save"} and len(remainder) > 2:
         return prefix + ["export", server, remainder[2]] + remainder[3:]
     action = _EASY_ACTIONS.get(remainder[1].lower())

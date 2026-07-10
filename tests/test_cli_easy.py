@@ -89,3 +89,4 @@ class EasyCliTests(unittest.TestCase):
         )
         self.assertEqual(["where", "testingserver"], _friendly_argv(["testingserver", "where"]))
         self.assertEqual(["edit", "testingserver"], _friendly_argv(["testingserver", "edit"]))
+        self.assertEqual(["edit", "testingserver", "--raw"], _friendly_argv(["testingserver", "edit", "raw"]))

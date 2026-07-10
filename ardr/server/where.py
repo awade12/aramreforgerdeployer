@@ -34,5 +34,6 @@ def show_where(config_path: Path, config: dict[str, Any], instance_name: str | N
     section("Quick edit commands")
     print("  reforger edit                     open the main deployer.json in Micro")
     for instance in select_instances(config, instance_name):
-        print(f"  reforger {instance['name']} edit   open this server's JSON in Micro")
+        print(f"  reforger {instance['name']} edit   guided settings for this server")
+        print(f"  reforger {instance['name']} edit --raw   open its raw JSON in Micro")
     print("  Micro is offered for installation if it is not installed yet.")

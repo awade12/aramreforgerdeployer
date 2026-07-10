@@ -19,7 +19,7 @@ def server_hub(args: argparse.Namespace, dispatch: dict[str, Action]) -> None:
         heading(str(instance.get("server", {}).get("name", selected)), friendly_status(config_path, config, instance))
         print("\n  1. Start     2. Stop      3. Logs      4. Update")
         print("  5. Mods      6. Backup    7. Health    8. Details")
-        print("  9. Resources 10. Invite")
+        print("  9. Resources 10. Invite    11. Edit settings")
         print("  0. Back\n")
         choice = input("What do you want to do? ").strip().lower()
         if choice in {"0", "back", "quit", "exit"}:
@@ -44,6 +44,8 @@ def server_hub(args: argparse.Namespace, dispatch: dict[str, Action]) -> None:
             _run(dispatch, args, selected, "resources")
         elif choice == "10":
             _run(dispatch, args, selected, "invite")
+        elif choice == "11":
+            _run(dispatch, args, selected, "edit")
         else:
             note("Choose one of the numbers shown.")
 
