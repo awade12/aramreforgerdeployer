@@ -1,260 +1,164 @@
-# Arma Reforger Server Deployer
+# Reforger Deployer
 
-A small, dependency-free deployment toolkit for running one or many Arma Reforger dedicated servers on Linux VPS hosts, bare-metal Linux machines, or Windows servers.
+Reforger Deployer is a beginner-friendly command-line manager for one or more **Arma Reforger dedicated servers**. It installs, configures, starts, updates, monitors, backs up, and shares servers from Linux or Windows without requiring you to remember a pile of file paths.
 
-It uses the official dedicated-server Steam app IDs:
+The normal command is `reforger`.
 
-- Stable server: `1874900` ([SteamDB](https://steamdb.info/app/1874900/))
-- Arma Reforger server config wiki: <https://community.bistudio.com/wiki/Arma_Reforger:Server_Config>
-- SteamCMD documentation: <https://developer.valvesoftware.com/wiki/SteamCMD>
+## Start Here
 
-## What This Gives You
-
-- One global config plus one editable `instances/*.json` file per server.
-- Automatic safe port assignment for new or repaired instances.
-- Preflight `doctor` checks for Python, SteamCMD, disk, ports, firewall notes, config, and server files.
-- Non-root Linux user setup for safer VPS hosting.
-- Guided config wizard for adding/editing servers.
-- Interactive operator menu for common actions.
-- SteamCMD install/update for stable or experimental dedicated servers.
-- Per-instance server config and start-script generation.
-- Lifecycle commands: start, stop, restart, pause, resume, update, logs, debug.
-- Optional Linux `systemd` service files for auto-start and crash restart.
-- Service controls, firewall automation, backups, and mod helpers.
-- Authenticated HTMX/Tailwind web dashboard.
-- Discord status embed that updates one message in a channel.
-- Optional Windows startup Scheduled Tasks.
-- LinuxGSM helper scripts and guidance.
-- Firewall command suggestions for required UDP ports.
-- BattlEye RCon helper that appends settings without overwriting existing BattlEye config.
-
-## Quick Start: Linux VPS
+### Linux / VPS
 
 ```bash
-cd aramreforgerdeployer
+# From a clone or downloaded copy of this repository:
+cd /path/to/aramreforgerdeployer
 chmod +x scripts/install-linux.sh
 ./scripts/install-linux.sh
 ```
 
-The installer adds a `reforger` command to your PATH.
+The installer creates the `reforger` command and creates a starter configuration when needed.
 
 Then run:
 
 ```bash
 reforger setup
-reforger launch reforger-1
-sudo reforger launch reforger-1 --apply
-reforger tail reforger-1
+reforger reforger-1
 ```
 
-```bash
-reforger menu
-```
+`reforger setup` asks only the important first-time questions. `reforger reforger-1` opens that server’s interactive control room.
 
-After the service is installed, `reforger start`, `reforger stop`, `reforger restart`, and `reforger tail` automatically use systemd when available.
+### Windows
 
-## Quick Start: Windows
-
-Open PowerShell as Administrator:
+Open PowerShell as Administrator in the project folder:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
 .\scripts\install-windows.ps1
 ```
 
-The installer adds a `reforger` command to your user PATH. Open a new terminal if PowerShell does not find it immediately.
+Then use the same `reforger setup` and `reforger <server>` workflow.
 
-Then run:
+## Daily Use
 
-```powershell
-reforger setup
-reforger install
-reforger start reforger-1
-```
-
-```powershell
-reforger windows-task install
-```
-
-## Configure Many Servers
-
-Run this once to create a starter config:
+Put the server name first and say what you want to do:
 
 ```bash
-reforger init
+reforger testingserver             # interactive server control room
+reforger testingserver on          # start
+reforger testingserver off         # stop safely
+reforger testingserver logs        # latest logs
+reforger testingserver health      # readiness checks and fixes
+reforger testingserver resources   # CPU, RAM, disk, players, ping
+reforger testingserver invite      # print a shareable player invite
+reforger testingserver backup      # create a backup
 ```
 
-Add or edit servers with prompts:
+The traditional command-first form also works:
 
 ```bash
-reforger configure
-reforger configure reforger-1
+reforger start testingserver
+reforger logs testingserver
+reforger update testingserver --yes
 ```
 
-Each server is saved as its own file in `instances/`. Reforger can assign safe ports automatically.
+Run `reforger` with no command for a quick home screen, or `reforger menu` for a guided multi-server menu.
 
-Detailed config examples are in [docs/CONFIGURATION.md](/Users/awade/Documents/aramreforgerdeployer/docs/CONFIGURATION.md).
+## No More Folder Hunting
 
-## Ports
+You can run `reforger` from any SSH directory. It automatically finds `deployer.json` beside the installed command, in the current directory or a parent directory, and in `~/aramreforgerdeployer`.
 
 ```bash
-reforger ports
-reforger ports --fix
+reforger where
+reforger testingserver where
 ```
 
-## Common Commands
-
-The easiest way to work is server-first: put the server name first, then say what you want.
-
-You can run `reforger` from any directory. It automatically finds the deployer config beside the installed command (or use `--config /path/to/deployer.json` when managing a different server).
-
-Run `reforger where` at any time to see the exact config, project, install, log, generated-file, and backup locations in use. Use `reforger testingserver where` for one server.
-
-For beginner-friendly editing, use `reforger edit` to open the main config or `reforger testingserver edit` for one server. The server editor has separate menus for names, player access, admin IDs/passwords, gameplay, ports, and mods, with a change preview before each save. Use `reforger testingserver edit --raw` only when you need its raw JSON. The tool offers to install the simple Micro editor when it is missing; it always asks before installing anything.
+`where` shows the exact config, project, install, profile/log, generated-file, and backup paths currently in use. To manage a separate setup explicitly, use:
 
 ```bash
-reforger testingserver              # show a friendly summary and the next best step
-reforger testingserver on           # start it (also: start)
-reforger testingserver off          # stop it (also: stop)
-reforger testingserver logs         # show logs
-reforger testingserver health       # run readiness checks
-reforger testingserver backup       # create a backup
-reforger testingserver mod add <workshop-url>  # add a Workshop scenario and its dependencies
-reforger testingserver resources    # CPU, RAM, disk, and player dashboard
-reforger testingserver invite       # print a shareable player invite
-reforger testingserver export server.json  # save a portable server config
-reforger import server.json --as another-server  # load it on another host
+reforger --config /path/to/deployer.json testingserver
 ```
 
-The original command-first style continues to work too:
+## Edit Settings Without Raw JSON
 
 ```bash
-reforger setup                       # guided first-time setup, safe ports, checks
-reforger launch reforger-1           # preview first deploy
-sudo reforger launch reforger-1 --apply
-reforger default reforger-1          # make instance optional for daily commands
-reforger status
-reforger info
-reforger query
-reforger start
-reforger stop
-reforger restart
-reforger tail
-reforger update
-reforger backup create
-reforger mods list
-reforger check                       # validate, ports, doctor
-reforger fix                         # fix safe ports, validate, doctor
-reforger open --host 127.0.0.1 --port 8080
-reforger discord configure
-reforger discord start
-
-# Advanced commands are still available:
-reforger init
-reforger configure
-reforger menu
-reforger validate
-reforger ports --fix
-reforger doctor
-reforger linux-user
-reforger firewall apply --dry-run
-sudo reforger firewall apply
-reforger render
-reforger install
-reforger install reforger-1
-sudo reforger systemd install --instance reforger-1
-sudo reforger service enable --instance reforger-1
-sudo reforger service start --instance reforger-1
-reforger deploy reforger-1
-reforger update reforger-1 --no-restart
-reforger pause reforger-1
-reforger resume reforger-1
-reforger logs reforger-1 --follow
-reforger debug reforger-1
-reforger service restart --instance reforger-1
-reforger service logs --instance reforger-1 --follow
-reforger mods add reforger-1 --id MOD_ID --name "Mod Name"
-reforger mods list reforger-1
-reforger backup create reforger-1
-reforger ports
-reforger linuxgsm
-reforger battleye --instance reforger-1 --rcon-port 5678 --rcon-password "change-me"
+reforger testingserver edit
 ```
 
-## Quality-of-Life Features
+The guided editor separates settings into small menus:
 
-`reforger testingserver` opens a small interactive control room for that server. Updates create a backup before making changes, and stopping, restarting, updating, restoring, or applying firewall rules asks for confirmation. Use `--yes` only when you intentionally need to automate one of those actions.
+- Server name and browser visibility
+- Player slots, join password, admin password, and admin Steam IDs
+- Scenario, FPS limit, third-person, and BattlEye
+- Public address and game/query ports
+- Mods
 
-The latest log view highlights errors and warnings. Run `reforger doctor` or `reforger testingserver health` for a readiness scorecard with copy-paste fixes.
-
-`reforger testingserver resources --watch 2` refreshes the terminal dashboard every two seconds. It shows CPU, RAM, disk use, player count, ping, and uptime when available. Tick/FPS is shown honestly as unavailable until Reforger exposes it through its server query.
-
-When using `reforger configure`, every pending setting is shown in a clear **Config preview** before anything is saved. Choose `n` to discard it.
-
-### Tab Completion
-
-Enable completion once in your current shell:
+Admin IDs have their own add/remove/replace list manager. Every change is previewed before it is saved. For advanced editing only:
 
 ```bash
-eval "$(reforger completion bash)"  # Bash
-eval "$(reforger completion zsh)"   # Zsh
+reforger testingserver edit --raw
 ```
 
-Add the matching line to `~/.bashrc` or `~/.zshrc` to keep it enabled. Completion includes server names and common server-first actions.
+This opens the instance JSON in [Micro](https://micro-editor.github.io/). If Micro is missing, Reforger Deployer explains the install options and asks before invoking a package manager.
 
-`debug` runs the server in the foreground so you can see output directly. Use `logs --systemd --follow` when the instance is running under a generated Linux service.
-For VPS hosting, install the service with `launch --apply`; daily `start`, `stop`, `restart`, and `tail` will use it automatically.
-More operation commands are in [docs/OPERATIONS.md](/Users/awade/Documents/aramreforgerdeployer/docs/OPERATIONS.md).
+## First Deployment
 
-## Linux Service Workflow
-
-For safer VPS hosting, prepare a non-root server user after cloning the repo:
+Preview the work first:
 
 ```bash
-sudo reforger linux-user --user armar --target /opt/ardr --apply
-sudo -iu armar
-cd /opt/ardr
+reforger launch testingserver
 ```
 
-The default `linux-user` command is a dry run unless `--apply` is passed.
-
-Install and manage services:
+On Linux, apply the complete first deployment with the required privileges:
 
 ```bash
-sudo reforger systemd install
-sudo systemctl enable --now ardr-reforger-1.service
-sudo reforger service restart --instance reforger-1
-reforger service logs --instance reforger-1 --follow
+sudo reforger launch testingserver --apply
 ```
 
-## LinuxGSM Workflow
+The workflow renders config files, creates a backup, installs or updates the server through SteamCMD, prepares firewall commands, installs/enables a systemd service, starts it, and prints the next best step.
 
-LinuxGSM is a strong option on Linux when you want a battle-tested wrapper with monitor, console, backup, debug, update, and cron support.
+See [Deployment](docs/DEPLOYMENT.md) for Linux, Windows, services, and VPS guidance.
+
+## Safety Built In
+
+- Updates and Workshop changes create a backup automatically.
+- Stop, restart, update, restore, and firewall-apply commands ask before changing anything.
+- Use `--yes` only in intentional automation.
+- `reforger doctor` ends with a readiness scorecard and copy-paste fixes.
+- `reforger check` validates configuration, ports, disk, SteamCMD, server files, and local bind availability.
+
+## Useful Commands
 
 ```bash
-reforger linuxgsm
+reforger where                       # resolve every path in use
+reforger testingserver edit          # guided settings editor
+reforger testingserver resources --watch 2
+reforger testingserver mod add <workshop-url>
+reforger testingserver export server.json
+reforger import server.json --as copied-server
+reforger backup list
+reforger backup restore              # choose a backup interactively
+reforger completion bash             # print Bash completion setup
+reforger completion zsh              # print Zsh completion setup
 ```
 
-More detail is in [docs/DEPLOYMENT.md](/Users/awade/Documents/aramreforgerdeployer/docs/DEPLOYMENT.md).
+For the complete command reference, see [Commands](docs/COMMANDS.md). For day-to-day tasks, see [Operations](docs/OPERATIONS.md).
 
-## Windows Startup Workflow
+## Documentation
 
-Install startup tasks:
+- [Deployment guide](docs/DEPLOYMENT.md)
+- [Configuration guide](docs/CONFIGURATION.md)
+- [Operations guide](docs/OPERATIONS.md)
+- [Command reference](docs/COMMANDS.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Project structure](docs/STRUCTURE.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
 
-```powershell
-reforger windows-task install
-```
+## Official References
 
-Manage in Task Scheduler, or use `schtasks`:
+- Arma Reforger dedicated server: [Bohemia Interactive community wiki](https://community.bistudio.com/wiki/Arma_Reforger:Server_Config)
+- Stable dedicated server app: [SteamDB app 1874900](https://steamdb.info/app/1874900/)
+- SteamCMD: [Valve Developer Community](https://developer.valvesoftware.com/wiki/SteamCMD)
 
-```powershell
-schtasks /Run /TN "Reforger reforger-1"
-schtasks /End /TN "Reforger reforger-1"
-```
+## License
 
-## Notes
-
-- `-maxFPS` defaults to `60`; Reforger servers can consume excessive CPU without it.
-- The deployer uses `-config` and `-profile` for each instance.
-- BattlEye RCon settings are appended to `BattlEye/BEServer_x64.cfg`; do not erase the existing generated content in that file.
-- `pause` and `resume` suspend the tracked process. Prefer `stop` or `restart` for normal maintenance.
+Add a project license before distributing modified copies. Until then, treat the repository as source available only to its owner and collaborators.

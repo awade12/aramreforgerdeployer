@@ -1,142 +1,167 @@
 # Configuration
 
-Run the wizard first:
-
-```bash
-reforger configure
-```
-
-You can also edit files directly. Global settings live in `deployer.json`; each server lives in its own file under `instances/`.
+Reforger Deployer keeps global settings in `deployer.json` and one server per file under `instances/`.
 
 ```text
 deployer.json
 instances/
-  reforger-1.json
-  reforger-2.json
+  testingserver.json
+  eventserver.json
 ```
 
-## Global Example
+Start with the guided setup:
+
+```bash
+reforger setup
+```
+
+For an existing server, use the guided editor rather than editing JSON directly:
+
+```bash
+reforger testingserver edit
+```
+
+It previews every save. Raw JSON remains available through `reforger testingserver edit --raw`.
+
+## Global Settings
 
 ```json
 {
   "baseDir": "./deployments",
   "steamcmd": "steamcmd",
   "instanceDir": "instances",
-  "defaultInstance": "reforger-1"
+  "defaultInstance": "testingserver"
 }
 ```
 
-## Instance Example
+| Setting | Purpose |
+| --- | --- |
+| `baseDir` | Location for installed server files, generated files, and backups. |
+| `steamcmd` | `steamcmd` command or absolute SteamCMD path. |
+| `instanceDir` | Folder containing per-server JSON files. |
+| `defaultInstance` | Optional server used by short command forms such as `reforger start`. |
 
-Save each server as `instances/<name>.json`.
+## Server Settings
+
+Save a server as `instances/<server-name>.json`.
 
 ```json
 {
-  "name": "reforger-1",
+  "name": "testingserver",
   "branch": "stable",
   "port": 2001,
   "queryPort": 17777,
   "maxFPS": 60,
-  "profileDir": "./profiles/reforger-1",
+  "profileDir": "./profiles/testingserver",
   "server": {
-    "name": "My Reforger Server 1",
+    "name": "My Reforger Server",
     "password": "",
     "adminPassword": "change-this-admin-password",
+    "admins": ["76561198000000000"],
     "scenarioId": "{ECC61978EDCC2B5A}Missions/23_Campaign.conf",
     "maxPlayers": 64,
-    "visible": true
+    "visible": true,
+    "publicAddress": ""
   },
   "mods": []
 }
 ```
 
-## Important Fields
+### Important Fields
 
-- `name`: Local instance name used by Reforger commands.
-- `branch`: `stable`, `experimental`, or a numeric Steam app ID.
-- `port`: UDP game traffic port.
-- `queryPort`: UDP A2S/query port.
-- `maxFPS`: Server FPS cap. Keep this set, usually `60`.
-- `profileDir`: Logs, downloaded addons, and profile data.
-- `server.name`: Public browser name.
-- `server.publicAddress`: Public VPS IP or DNS name shown by `reforger info` for direct connect.
-- `server.adminPassword`: Admin password.
-- `server.scenarioId`: Scenario config path.
-- `mods`: Workshop mods passed into the generated server config.
+| Field | Meaning |
+| --- | --- |
+| `name` | Local server name used in commands. Keep it short and unique. |
+| `branch` | `stable`, `experimental`, or a numeric Steam app ID. |
+| `port` / `queryPort` | Unique UDP game and A2S query ports. |
+| `maxFPS` | Server FPS cap; `60` is a sensible default. |
+| `profileDir` | Profile data, logs, and downloaded addons. |
+| `server.name` | Name shown to players. |
+| `server.password` | Optional join password; empty means public. |
+| `server.adminPassword` | Administrative password. Do not share it. |
+| `server.admins` | Optional Steam IDs with admin access. Use the guided add/remove list manager. |
+| `server.scenarioId` | Scenario config path. |
+| `server.maxPlayers` | Maximum player slots. |
+| `server.publicAddress` | Public VPS IP or domain for direct-connect and invite output. |
+| `mods` | Configured Workshop mods. |
 
-Every instance needs unique `port` and `queryPort` values.
+## Ports and Multiple Servers
 
-## Default Server
+Every server needs unique game and query ports. The default sequence is:
 
-Set a default server to make daily commands shorter:
+- Game: `2001`, `2003`, `2005`, …
+- Query: `17777`, `17779`, `17781`, …
 
-```bash
-reforger default reforger-1
-reforger status
-reforger restart
-reforger tail
-```
-
-Without a default, commands such as `restart` and `tail` will ask you to name a server when multiple instances are configured.
-
-## Automatic Ports
-
-New instances get safe ports automatically. Reforger starts at:
-
-- Game ports: `2001`, `2003`, `2005`, ...
-- Query ports: `17777`, `17779`, `17781`, ...
-
-If you manually edit files and accidentally collide ports, run:
+Repair missing or conflicting ports with:
 
 ```bash
 reforger ports --fix
 ```
 
-That rewrites `instances/*.json` with safe ports before rendering or starting servers.
+Review the required provider and host firewall ports with:
 
-## Discord Status Embed
+```bash
+reforger ports
+```
 
-Post a live server status embed to a Discord channel. The deployer edits one message instead of sending a new one every update.
+## Default Server
 
-Secrets stay out of `deployer.json`. Reforger stores Discord settings in a local `.ardr-discord.ini` file with mode `600`, similar to the web dashboard auth file.
+Set a default once to keep command lines short:
+
+```bash
+reforger default testingserver
+reforger start
+reforger tail
+```
+
+The server-first form is always clear and does not require a default:
+
+```bash
+reforger testingserver on
+reforger testingserver logs
+```
+
+## Mods and Workshop URLs
+
+Use a Workshop URL to apply a scenario and its dependencies:
+
+```bash
+reforger testingserver mod add <workshop-url>
+```
+
+This previews the result, creates a safety backup before saving, and merges mods. To manage a mod ID directly:
+
+```bash
+reforger mods add testingserver --id MOD_ID --name "Mod Name"
+reforger mods list testingserver
+reforger mods remove testingserver --id MOD_ID
+```
+
+## Export and Import
+
+Move a server definition between hosts without copying the entire project:
+
+```bash
+reforger testingserver export testingserver.json
+reforger import testingserver.json --as testingserver-copy
+```
+
+Imports preserve the definition but assign safe ports if a collision would occur. Review an imported server before starting it:
+
+```bash
+reforger testingserver-copy
+```
+
+## Discord Status
+
+Discord secrets are deliberately separate from server configuration.
 
 ```bash
 reforger discord configure
 reforger discord status
 reforger discord post
+reforger discord sync
 reforger discord start
 ```
 
-Example local file:
-
-```ini
-[discord]
-bot_token = your-bot-token-here
-channel_id = 1234567890123456789
-poll_interval_seconds = 30
-query_live = true
-title = Arma Reforger Server Status
-
-[state]
-channel_id = 1234567890123456789
-message_id =
-```
-
-Create a Discord bot in the [Discord Developer Portal](https://discord.com/developers/applications), invite it to your server with `Send Messages` and `Embed Links`, then run `reforger discord configure`.
-
-Commands:
-
-- `reforger discord configure` — create or update `.ardr-discord.ini`
-- `reforger discord status` — show saved settings without printing the token
-- `reforger discord post` — create the first embed and save its message ID
-- `reforger discord sync` — update the saved embed once
-- `reforger discord start` — keep updating the same embed on an interval
-
-For systemd or cron, you can override the token with an environment variable instead of storing it in the ini file:
-
-```bash
-export DISCORD_BOT_TOKEN="your-bot-token"
-reforger discord sync --ini /etc/ardr/discord.ini
-```
-
-If the saved message was deleted, the next sync automatically posts a new one and updates the saved message ID in the ini file.
+The local `.ardr-discord.ini` stores the bot configuration with restrictive permissions. Use `DISCORD_BOT_TOKEN` in automation when you do not want the token in that file.

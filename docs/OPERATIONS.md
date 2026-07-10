@@ -1,102 +1,144 @@
 # Operations
 
+## The Server Control Room
+
+```bash
+reforger testingserver
+```
+
+The server-first command opens the interactive control room. It provides Start, Stop, Logs, Update, Mods, Backup, Health, Details, Resources, Invite, and Edit settings in one place.
+
+You can use direct commands instead:
+
+```bash
+reforger testingserver on
+reforger testingserver off
+reforger testingserver restart
+reforger testingserver logs
+reforger testingserver resources --watch 2
+```
+
+Use `Ctrl+C` to stop a watched resource dashboard or live log stream.
+
+## Logs and Live Status
+
+```bash
+reforger testingserver logs
+reforger testingserver tail
+reforger query testingserver
+```
+
+The regular log view highlights errors and warnings. `tail` follows the current log. With systemd, use:
+
+```bash
+reforger logs testingserver --systemd --follow
+```
+
+`query` uses the A2S query port and reports live server data such as player count, map, version, and ping when the server responds.
+
+## Resources
+
+```bash
+reforger testingserver resources
+reforger testingserver resources --watch 2
+```
+
+The resource view reports process CPU/RAM, deployment disk usage, player count, ping, and process runtime when available. Reforger does not expose a tick/FPS value through the query protocol, so the dashboard labels that honestly rather than inventing a value.
+
+## Updates and Backups
+
+```bash
+reforger testingserver update
+reforger backup list
+reforger backup create testingserver
+reforger backup restore
+```
+
+Updates create a safety backup by default and ask before potentially restarting a running server. `backup restore` lists available archives when no `--archive` is supplied and asks before writing files.
+
+Useful flags:
+
+```bash
+reforger update testingserver --no-restart --yes
+reforger update testingserver --no-backup --yes
+reforger backup create testingserver --include-downloads
+reforger backup restore --archive /path/to/backup.tar.gz --target ./restore-test --yes
+```
+
+## Editing and Admins
+
+```bash
+reforger testingserver edit
+```
+
+Use the guided editor for names, passwords, player limits, admin Steam IDs, scenario settings, network settings, and mods. Admin IDs are managed one at a time—add, remove, or deliberately replace the full list. Changes are previewed before saving.
+
+Use raw JSON only for settings not represented in the guided editor:
+
+```bash
+reforger testingserver edit --raw
+```
+
+## Player Invite
+
+```bash
+reforger testingserver invite
+```
+
+This prints a clean message containing the server name, direct address, password status, and player limit. Set `server.publicAddress` through the guided editor if the address is wrong.
+
+## Firewall
+
+```bash
+reforger ports
+reforger firewall apply --dry-run
+sudo reforger firewall apply
+```
+
+Firewall application asks before changing local rules. It only handles a local firewall such as UFW; you must still permit the same UDP ports in your VPS provider control panel.
+
+## Mods and Workshop
+
+```bash
+reforger testingserver mod list
+reforger testingserver mod add <workshop-url>
+reforger mods remove testingserver --id MOD_ID
+```
+
+Workshop application previews the selected scenario and dependencies, then creates a safety backup before it changes the server definition.
+
+## Export and Import
+
+```bash
+reforger testingserver export testingserver.json
+reforger import testingserver.json --as eventserver
+```
+
+Exported files contain a portable server definition, not installed game files or secrets outside the server definition. Inspect an imported server with `reforger eventserver` before using it.
+
 ## Web Dashboard
+
+The web dashboard is optional; the CLI is the primary interface.
 
 ```bash
 reforger web --host 127.0.0.1 --port 8080
-reforger open --host 127.0.0.1 --port 8080
-reforger web --host 0.0.0.0 --port 8080
-reforger web --host 0.0.0.0 --port 8080 --password "change-this"
 ```
 
-The first run generates a password and stores only a local hash in `.ardr-web-auth.json`. The dashboard uses HTMX and Tailwind, requires login, signs session cookies, and uses CSRF tokens on actions. For public use, put HTTPS in front of it with Caddy or another reverse proxy.
-
-The instance panel shows runtime state, PID, systemd state, ports, scenario, executable presence, important paths, and a last-checked timestamp. Start, stop, restart, status, logs, backup, render, query, and mod-add actions all return a visible result banner plus an activity block with command output or errors.
-
-For safer remote access, bind to localhost and tunnel it:
+Bind to localhost and use SSH tunneling for remote access:
 
 ```bash
 ssh -L 8080:127.0.0.1:8080 ubuntu@YOUR_VPS_IP
 ```
 
-Then open `http://127.0.0.1:8080` on your computer.
+Then browse to `http://127.0.0.1:8080` locally. If you expose the dashboard through a reverse proxy, use HTTPS and a strong password.
 
-## One-View Info
-
-```bash
-reforger info reforger-1
-reforger default reforger-1
-reforger info
-```
-
-This prints service state, connection hint, ports, important file paths, useful commands, and the rendered launch command.
-
-## Live Query
+## Discord
 
 ```bash
-reforger query reforger-1
-reforger query reforger-1 --host 203.0.113.10
+reforger discord configure
+reforger discord post
+reforger discord sync
+reforger discord start
 ```
 
-This queries the instance A2S port and prints live server name, map, player count, version, and ping when the server responds.
-
-## First Deploy
-
-Preview:
-
-```bash
-reforger launch reforger-1
-```
-
-Apply:
-
-```bash
-sudo reforger launch reforger-1 --apply
-```
-
-Launch/deploy renders configs, creates a backup, installs/updates server files, applies local firewall rules, installs systemd, enables the service, starts it, and prints `info`.
-
-## Daily Controls
-
-After the service is installed, the simple lifecycle commands automatically use systemd when available:
-
-```bash
-reforger start reforger-1
-reforger stop reforger-1
-reforger restart reforger-1
-reforger status reforger-1
-reforger tail reforger-1
-reforger logs reforger-1 -f
-```
-
-The advanced `service` command remains available when you need direct systemd control.
-
-## Firewall Apply
-
-```bash
-reforger firewall apply --dry-run
-sudo reforger firewall apply
-```
-
-This applies local `ufw` rules when available. You still need to open the same UDP ports in your VPS provider firewall/security group.
-
-## Backups
-
-```bash
-reforger backup create
-reforger backup create reforger-1
-reforger backup create reforger-1 --include-downloads
-reforger backup list
-reforger backup restore --archive deployments/backups/FILE.tar.gz --target ./restore-test
-```
-
-Backups include `deployer.json`, `instances/*.json`, profiles, and BattlEye config. `--include-downloads` also includes the installed server directory for the selected instance.
-
-## Mods
-
-```bash
-reforger mods add reforger-1 --id MOD_ID --name "Mod Name"
-reforger mods list reforger-1
-reforger mods remove reforger-1 --id MOD_ID
-reforger render reforger-1
-```
+Discord updates a single status embed rather than posting a new message each interval. Keep the bot token private and prefer `DISCORD_BOT_TOKEN` for unattended service or cron use.
