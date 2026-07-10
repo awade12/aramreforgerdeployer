@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 
 from ..config import resolve_instance_name
+from ..deploy.backup import create_backup
 from ..workshop import apply_workshop_bundle, fetch_workshop_bundle, preview_workshop_bundle
 
 
@@ -14,6 +15,9 @@ def cmd_workshop(args: argparse.Namespace, load_with_ports) -> None:
     if args.dry_run:
         print("\nDry run. Re-run without --dry-run to save this setup.")
         return
+    if not getattr(args, "no_backup", False):
+        print("\nCreating a safety backup before changing mods and scenario…")
+        create_backup(config_path, config, instance_name, False)
     apply_workshop_bundle(
         config_path,
         config,

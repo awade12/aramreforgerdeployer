@@ -113,6 +113,7 @@ reforger testingserver off          # stop it (also: stop)
 reforger testingserver logs         # show logs
 reforger testingserver health       # run readiness checks
 reforger testingserver backup       # create a backup
+reforger testingserver mod add <workshop-url>  # add a Workshop scenario and its dependencies
 ```
 
 The original command-first style continues to work too:
@@ -169,6 +170,23 @@ reforger ports
 reforger linuxgsm
 reforger battleye --instance reforger-1 --rcon-port 5678 --rcon-password "change-me"
 ```
+
+## Quality-of-Life Features
+
+`reforger testingserver` opens a small interactive control room for that server. Updates create a backup before making changes, and stopping, restarting, updating, restoring, or applying firewall rules asks for confirmation. Use `--yes` only when you intentionally need to automate one of those actions.
+
+The latest log view highlights errors and warnings. Run `reforger doctor` or `reforger testingserver health` for a readiness scorecard with copy-paste fixes.
+
+### Tab Completion
+
+Enable completion once in your current shell:
+
+```bash
+eval "$(reforger completion bash)"  # Bash
+eval "$(reforger completion zsh)"   # Zsh
+```
+
+Add the matching line to `~/.bashrc` or `~/.zshrc` to keep it enabled. Completion includes server names and common server-first actions.
 
 `debug` runs the server in the foreground so you can see output directly. Use `logs --systemd --follow` when the instance is running under a generated Linux service.
 For VPS hosting, install the service with `launch --apply`; daily `start`, `stop`, `restart`, and `tail` will use it automatically.

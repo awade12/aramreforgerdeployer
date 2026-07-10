@@ -12,7 +12,7 @@ from .state import WebState
 
 
 def run_action(action: str, instance_name: str, state: WebState) -> None:
-    from ..commands.handlers import cmd_check, cmd_doctor, cmd_install, cmd_ports, cmd_update
+    from ..commands.handlers import cmd_check, cmd_doctor, cmd_install, cmd_logs, cmd_ports, cmd_update
     from ..commands.management import cmd_query
     from ..commands.lifecycle import cmd_pause, cmd_resume, cmd_start, cmd_stop, cmd_restart
 
@@ -20,7 +20,8 @@ def run_action(action: str, instance_name: str, state: WebState) -> None:
     if normalize_config_ports(config):
         save_config(config_path, config)
     instance = select_instances(config, instance_name)[0]
-    args = Namespace(config=state.config, instance=instance_name, instance_name=instance_name)
+    # A click is the web dashboard's explicit confirmation for these actions.
+    args = Namespace(config=state.config, instance=instance_name, instance_name=instance_name, yes=True, no_backup=False)
     if action == "start":
         cmd_start(args)
     elif action == "stop":
@@ -53,7 +54,10 @@ def run_action(action: str, instance_name: str, state: WebState) -> None:
         args = type("Args", (), {"instance": instance_name, "host": None, "timeout": 2.0})()
         cmd_query(args, lambda *_: (config_path, config, instance))
     elif action == "logs":
-        control_service(instance, "logs", lines=80, follow=False)
+        args.lines = 80
+        args.follow = False
+        args.systemd = False
+        cmd_logs(args)
     elif action == "status":
         print_status(config_path, config, instance)
     else:

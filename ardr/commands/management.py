@@ -4,12 +4,13 @@ import argparse
 from pathlib import Path
 
 from ..config import resolve_instance_name
-from ..deploy.backup import create_backup, list_backups, restore_backup
+from ..deploy.backup import backup_archives, create_backup, list_backups, restore_backup
 from ..deploy.workflow import deploy_instance
 from ..platform.firewall import apply_firewall
 from ..platform.services import control_service
 from ..server.mods import add_mod, list_mods, remove_mod
 from ..server.query import query_server
+from ..ui.prompts import confirm
 
 
 def cmd_service(args: argparse.Namespace, one) -> None:
@@ -19,6 +20,9 @@ def cmd_service(args: argparse.Namespace, one) -> None:
 
 def cmd_firewall(args: argparse.Namespace, load_with_ports) -> None:
     _, config = load_with_ports(args)
+    if not args.dry_run and not confirm(args, "Apply firewall changes?"):
+        print("Firewall changes cancelled.")
+        return
     apply_firewall(config, args.instance, args.dry_run)
 
 
@@ -30,9 +34,11 @@ def cmd_backup(args: argparse.Namespace, load_with_ports) -> None:
     elif args.action == "list":
         list_backups(config_path, config)
     elif args.action == "restore":
-        if not args.archive:
-            raise SystemExit("backup restore requires --archive")
-        restore_backup(Path(args.archive), Path(args.target))
+        archive = Path(args.archive) if args.archive else _choose_backup(config_path, config)
+        if not confirm(args, f"Restore {archive.name} into {args.target}? Existing files may be overwritten."):
+            print("Restore cancelled.")
+            return
+        restore_backup(archive, Path(args.target))
 
 
 def cmd_mods(args: argparse.Namespace, load_with_ports) -> None:
@@ -63,3 +69,17 @@ def cmd_deploy(args: argparse.Namespace, one) -> None:
 
 def _arg_instance(args: argparse.Namespace) -> str | None:
     return getattr(args, "instance", None) or getattr(args, "instance_name", None)
+
+
+def _choose_backup(config_path: Path, config: dict) -> Path:
+    archives = backup_archives(config_path, config)
+    if not archives:
+        raise SystemExit("No backups found. Create one first with `reforger backup create`.")
+    print("Choose a backup to restore:")
+    for index, archive in enumerate(archives, start=1):
+        print(f"  {index}. {archive.name}")
+    while True:
+        try:
+            return archives[int(input("Backup number: ").strip()) - 1]
+        except (ValueError, IndexError):
+            print("Choose one of the listed numbers.")

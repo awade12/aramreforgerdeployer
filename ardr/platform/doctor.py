@@ -10,7 +10,7 @@ from typing import Any
 from ..config import normalize_config_ports, validate_config
 from ..core.paths import base_dir, install_dir
 from ..core.platforming import executable_name, is_windows
-from ..core.terminal import check_line, heading, note, section
+from ..core.terminal import check_line, commands, good, heading, note, section, warn
 
 
 def run_doctor(config_path: Path, config: dict[str, Any]) -> int:
@@ -23,7 +23,25 @@ def run_doctor(config_path: Path, config: dict[str, Any]) -> int:
     failures += _port_checks(config)
     failures += _executable_checks(config_path, config)
     _firewall_notes(config)
+    _scorecard(config_path, config, failures)
     return failures
+
+
+def _scorecard(config_path: Path, config: dict[str, Any], failures: int) -> None:
+    section("Readiness Scorecard")
+    if failures == 0:
+        print(f"  {good('Ready to go.')} Everything this tool can check looks good.")
+        return
+    print(f"  {warn(f'{failures} thing(s) need attention.')} Start with the commands below.")
+    fixes: list[tuple[str, str]] = []
+    if not _steamcmd_exists(config):
+        fixes.append(("sudo apt update && sudo apt install steamcmd", "install SteamCMD on Ubuntu/Debian"))
+    missing = [str(instance["name"]) for instance in config.get("instances", []) if not (install_dir(config_path, config, instance) / executable_name()).exists()]
+    for name in missing:
+        fixes.append((f"reforger {name} install", f"download the server files for {name}"))
+    if not fixes:
+        fixes.append(("reforger ports", "review the UDP port and firewall guidance"))
+    commands(fixes)
 
 
 def _check(label: str, ok: bool, detail: str = "") -> int:

@@ -54,6 +54,11 @@ def list_backups(config_path: Path, config: dict[str, Any]) -> None:
     )
 
 
+def backup_archives(config_path: Path, config: dict[str, Any]) -> list[Path]:
+    out_dir = base_dir(config_path, config) / "backups"
+    return sorted(out_dir.glob("*.tar.gz"), reverse=True) if out_dir.exists() else []
+
+
 def _add_if_exists(tar: tarfile.TarFile, path: Path, arcname: str) -> None:
     if path.exists():
         tar.add(path, arcname=arcname)

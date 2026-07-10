@@ -9,12 +9,14 @@ from ..platform.doctor import run_doctor
 from ..platform.linux_setup import setup_linux_user
 from ..platform.linuxgsm import render_linuxgsm
 from ..platform.services import manage_windows_task, render_systemd
+from ..deploy.backup import create_backup
 from ..server.battleye import append_rcon
 from ..server.info import show_info
 from ..server.ops import install_instances, show_ports, update_instances
 from ..server.render import render_instances
 from ..server.status import status_row
 from ..ui.menu import interactive_loop
+from ..ui.hub import server_hub
 from ..integrations.discord import (
     configure_discord,
     resolve_ini_path,
@@ -46,7 +48,17 @@ def cmd_install(args: argparse.Namespace) -> None:
 
 def cmd_update(args: argparse.Namespace) -> None:
     config_path, config = load_with_ports(args)
-    update_instances(config_path, config, many_instance_name(args), args.restart, args.start_stopped)
+    target = many_instance_name(args)
+    from ..ui.prompts import confirm
+
+    label = target or "all configured servers"
+    if not confirm(args, f"Update {label}? It may briefly restart a running server."):
+        print("Update cancelled.")
+        return
+    if not getattr(args, "no_backup", False):
+        print("Creating a safety backup before updating…")
+        create_backup(config_path, config, target, False)
+    update_instances(config_path, config, target, args.restart, args.start_stopped)
 
 
 def cmd_status(args: argparse.Namespace) -> None:
@@ -115,6 +127,18 @@ def cmd_menu(args: argparse.Namespace) -> None:
     from .registry import dispatch_table
 
     interactive_loop(args, dispatch_table())
+
+
+def cmd_hub(args: argparse.Namespace) -> None:
+    from .registry import dispatch_table
+
+    server_hub(args, dispatch_table())
+
+
+def cmd_completion(args: argparse.Namespace) -> None:
+    from ..cli.completion import cmd_completion as run_completion
+
+    run_completion(args)
 
 
 def cmd_doctor(args: argparse.Namespace) -> None:

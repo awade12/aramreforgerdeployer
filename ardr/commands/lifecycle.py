@@ -6,6 +6,7 @@ from ..platform.services import control_service, service_available
 from ..server.ops import restart_instance, show_logs
 from ..server.processes import pause_instance, resume_instance, start_instance, stop_instance
 from ..server.render import render_instances
+from ..ui.prompts import confirm
 from .helpers import load_with_ports, one_instance
 
 
@@ -20,6 +21,9 @@ def cmd_start(args: argparse.Namespace) -> None:
 
 def cmd_stop(args: argparse.Namespace) -> None:
     config_path, config, instance = one_instance(args, "stop")
+    if not confirm(args, f"Stop {instance['name']}? Connected players will be disconnected."):
+        print("Stop cancelled.")
+        return
     if service_available(instance):
         control_service(instance, "stop")
         return
@@ -28,6 +32,9 @@ def cmd_stop(args: argparse.Namespace) -> None:
 
 def cmd_restart(args: argparse.Namespace) -> None:
     config_path, config, instance = one_instance(args, "restart")
+    if not confirm(args, f"Restart {instance['name']}? Connected players will be disconnected."):
+        print("Restart cancelled.")
+        return
     if service_available(instance):
         control_service(instance, "restart")
         return

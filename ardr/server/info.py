@@ -83,6 +83,7 @@ def show_info(config_path: Path, config: dict[str, Any], instance: dict[str, Any
             (f"reforger {name} stop", "stop it (you can also say `off`)"),
             (f"reforger {name} logs", "show recent logs"),
             (f"reforger {name} health", "run readiness checks"),
+            (f"reforger {name} mod add <workshop-url>", "add a Workshop scenario and its required mods"),
         ]
     )
 

@@ -50,8 +50,12 @@ class EasyCliTests(unittest.TestCase):
         self.assertIn("More tools", labels)
 
     def test_server_first_shortcuts_are_translated(self) -> None:
-        self.assertEqual(["info", "testingserver"], _friendly_argv(["testingserver"]))
+        self.assertEqual(["hub", "testingserver"], _friendly_argv(["testingserver"]))
         self.assertEqual(["start", "testingserver"], _friendly_argv(["testingserver", "on"]))
         self.assertEqual(["logs", "testingserver", "--lines", "20"], _friendly_argv(["testingserver", "logs", "--lines", "20"]))
         self.assertEqual(["--config", "mine.json", "stop", "testingserver"], _friendly_argv(["--config", "mine.json", "testingserver", "off"]))
         self.assertEqual(["backup", "create", "testingserver"], _friendly_argv(["testingserver", "backup"]))
+        self.assertEqual(
+            ["workshop", "https://reforger.armaplatform.com/workshop/ABC", "testingserver", "--merge"],
+            _friendly_argv(["testingserver", "mod", "add", "https://reforger.armaplatform.com/workshop/ABC"]),
+        )

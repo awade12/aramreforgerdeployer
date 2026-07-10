@@ -6,6 +6,7 @@ from ..commands import (
     cmd_battleye,
     cmd_backup,
     cmd_check,
+    cmd_completion,
     cmd_debug,
     cmd_deploy,
     cmd_discord,
@@ -14,6 +15,7 @@ from ..commands import (
     cmd_fix,
     cmd_install,
     cmd_info,
+    cmd_hub,
     cmd_linuxgsm,
     cmd_linux_user,
     cmd_logs,
@@ -77,6 +79,13 @@ def add_basic(sub: argparse._SubParsersAction) -> None:
         if name == "ports":
             p.add_argument("--fix", action="store_true", help="Assign safe ports and save instance files.")
         p.set_defaults(func=func)
+    p = sub.add_parser("hub", help=argparse.SUPPRESS)
+    p.add_argument("instance_name")
+    p.add_argument("--instance")
+    p.set_defaults(func=cmd_hub)
+    p = sub.add_parser("completion", help="Print Bash or Zsh tab-completion setup.")
+    p.add_argument("shell", choices=["bash", "zsh", "servers"])
+    p.set_defaults(func=cmd_completion)
 
 
 def add_lifecycle(sub: argparse._SubParsersAction) -> None:
@@ -96,6 +105,8 @@ def add_lifecycle(sub: argparse._SubParsersAction) -> None:
         p = sub.add_parser(name, help=help_text)
         p.add_argument("instance_name", nargs="?")
         p.add_argument("--instance")
+        if name in {"stop"}:
+            p.add_argument("--yes", action="store_true", help="Skip the safety confirmation.")
         p.set_defaults(func=func)
     add_restart(sub)
     add_update(sub)
@@ -107,11 +118,13 @@ def add_restart(sub: argparse._SubParsersAction) -> None:
     p.add_argument("instance_name", nargs="?")
     p.add_argument("--instance")
     p.add_argument("--wait", type=float, default=2.0)
+    p.add_argument("--yes", action="store_true", help="Skip the safety confirmation.")
     p.set_defaults(func=cmd_restart)
     p = sub.add_parser("reload", help="Restart one instance.")
     p.add_argument("instance_name", nargs="?")
     p.add_argument("--instance")
     p.add_argument("--wait", type=float, default=2.0)
+    p.add_argument("--yes", action="store_true", help="Skip the safety confirmation.")
     p.set_defaults(func=cmd_restart)
 
 
@@ -121,6 +134,8 @@ def add_update(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--instance")
     p.add_argument("--no-restart", dest="restart", action="store_false")
     p.add_argument("--start-stopped", action="store_true")
+    p.add_argument("--yes", action="store_true", help="Skip the safety confirmation.")
+    p.add_argument("--no-backup", action="store_true", help="Do not create the automatic safety backup.")
     p.set_defaults(func=cmd_update, restart=True)
 
 
@@ -183,6 +198,7 @@ def add_workshop(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--dry-run", action="store_true", help="Show scenario and mods without saving.")
     p.add_argument("--merge", action="store_true", help="Merge mods instead of replacing the mods list.")
     p.add_argument("--set-name", action="store_true", help="Set server.name to the selected scenario name.")
+    p.add_argument("--no-backup", action="store_true", help="Do not create the automatic safety backup.")
     p.set_defaults(func=cmd_workshop)
 
 
@@ -201,6 +217,7 @@ def add_firewall(sub: argparse._SubParsersAction) -> None:
     p.add_argument("action", choices=["apply"])
     p.add_argument("--instance")
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--yes", action="store_true", help="Skip the safety confirmation when applying rules.")
     p.set_defaults(func=cmd_firewall)
 
 
@@ -212,6 +229,7 @@ def add_backup(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--include-downloads", action="store_true")
     p.add_argument("--archive")
     p.add_argument("--target", default=".")
+    p.add_argument("--yes", action="store_true", help="Skip the safety confirmation when restoring.")
     p.set_defaults(func=cmd_backup)
 
 

@@ -13,6 +13,7 @@ _COMMANDS = {
     "update", "logs", "tail", "systemd", "windows-task", "battleye", "linux-user",
     "service", "firewall", "backup", "mods", "query", "deploy", "launch", "workshop",
     "web", "open", "discord",
+    "hub", "completion",
 }
 _EASY_ACTIONS = {
     "on": "start", "run": "start", "start": "start", "up": "start",
@@ -41,7 +42,9 @@ def _friendly_argv(argv: list[str]) -> list[str]:
         return argv
     server = remainder[0]
     if len(remainder) == 1:
-        return prefix + ["info", server]
+        return prefix + ["hub", server]
+    if remainder[1].lower() in {"mod", "mods"}:
+        return _mod_shortcut(prefix, server, remainder[2:])
     action = _EASY_ACTIONS.get(remainder[1].lower())
     if action:
         if action == "backup":
@@ -50,6 +53,17 @@ def _friendly_argv(argv: list[str]) -> list[str]:
     # An unknown word is much nicer as an unknown server than an opaque
     # argparse command error: the existing resolver lists valid server names.
     return prefix + ["info", server] + remainder[1:]
+
+
+def _mod_shortcut(prefix: list[str], server: str, remainder: list[str]) -> list[str]:
+    """Make workshop URLs as easy as `reforger server mod add URL`."""
+    if not remainder or remainder[0] == "list":
+        return prefix + ["mods", "list", server]
+    if remainder[0] in {"add", "install"} and len(remainder) > 1:
+        return prefix + ["workshop", remainder[1], server, "--merge"] + remainder[2:]
+    if remainder[0] == "remove" and len(remainder) > 1:
+        return prefix + ["mods", "remove", server, "--id", remainder[1]] + remainder[2:]
+    return prefix + ["mods", "list", server]
 
 
 def _global_options(argv: list[str]) -> tuple[list[str], list[str]]:
