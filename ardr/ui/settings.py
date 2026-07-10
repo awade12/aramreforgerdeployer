@@ -85,15 +85,60 @@ def _edit_access(server: dict[str, Any]) -> bool:
     if choice == "3":
         server["maxPlayers"] = _bounded_int("Player slots", int(server.get("maxPlayers", 64)), 1, 256)
         return True
+    if choice == "4":
+        return _manage_admins(server)
     if choice != "4":
         if choice != "0":
             note("Choose one of the numbers shown.")
         return False
-    current = ", ".join(str(value) for value in server.get("admins", []))
-    raw = prompt("Admin IDs, comma-separated (leave blank to keep existing)", current)
-    if raw != current:
+
+
+def _manage_admins(server: dict[str, Any]) -> bool:
+    admins = server.get("admins", [])
+    print("\nAdmin Steam IDs")
+    if admins:
+        for index, admin in enumerate(admins, start=1):
+            print(f"  {index}. {admin}")
+    else:
+        print("  No extra admin IDs are configured yet.")
+    print("\n  1. Add an admin ID")
+    print("  2. Remove an admin ID")
+    print("  3. Replace the whole admin list")
+    print("  0. Back")
+    choice = input("What would you like to do? ").strip()
+    if choice == "1":
+        admin_id = prompt("Steam ID to add")
+        if not admin_id:
+            print("No ID entered.")
+            return False
+        if admin_id in admins:
+            print("That Steam ID is already an admin.")
+            return False
+        if "admins" not in server:
+            server["admins"] = admins
+        admins.append(admin_id)
+        return True
+    if choice == "2":
+        if not admins:
+            print("There are no admin IDs to remove.")
+            return False
+        while True:
+            raw = input("Admin number to remove (or 0 to cancel): ").strip()
+            if raw == "0":
+                return False
+            try:
+                removed = admins.pop(int(raw) - 1)
+                print(f"Removed {removed}.")
+                return True
+            except (ValueError, IndexError):
+                print("Choose one of the admin numbers shown.")
+    if choice == "3":
+        raw = prompt("Admin IDs, comma-separated (this replaces every admin)")
         server["admins"] = [item.strip() for item in raw.split(",") if item.strip()]
-    return True
+        return True
+    if choice != "0":
+        note("Choose one of the numbers shown.")
+    return False
 
 
 def _edit_gameplay(instance: dict[str, Any], server: dict[str, Any]) -> bool:
