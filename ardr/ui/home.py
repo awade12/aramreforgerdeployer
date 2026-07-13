@@ -38,9 +38,9 @@ def show_home(args: argparse.Namespace) -> None:
             ("reforger stop", "stop it safely"),
             ("reforger info", "see connection details and the best next step"),
             ("reforger menu", "open the guided interactive manager"),
+            ("reforger helpdesk", "search step-by-step answers to common questions"),
         ]
     )
     if not default:
         print()
         note(f"Tip: choose a default once with `reforger default {instances[0]['name']}` so daily commands stay short.")
-

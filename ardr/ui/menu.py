@@ -73,41 +73,43 @@ def interactive_loop(args: argparse.Namespace, dispatch: dict[str, Action]) -> N
 def _actions(show_more: bool) -> list[MenuItem]:
     if show_more:
         return [
-            ("update", "Update server files", True),
-            ("render", "Regenerate config and launch files", True),
-            ("backup", "Create a backup", True),
-            ("query", "Query live server status", True),
-            ("ports", "Show ports and firewall help", True),
+            ("edit", "Edit selected server settings", True),
+            ("render", "Apply saved settings to generated files", True),
+            ("query", "Query live players, map, and version", True),
+            ("resources", "Show CPU, RAM, disk, players, and ping", True),
+            ("invite", "Create a player invite", True),
+            ("ports", "Show ports and firewall instructions", True),
             ("doctor", "Run host diagnostics", False),
             ("firewall", "Preview firewall changes", False),
-            ("configure", "Edit every server setting", False),
-            ("more", "Back to everyday controls", False),
+            ("more", "Back to main menu", False),
             ("quit", "Quit", False),
         ]
     return [
+        ("hub", "Open selected server control room", True),
         ("status", "See all server status", False),
-        ("start", "Start selected server", True),
-        ("stop", "Stop selected server", True),
-        ("restart", "Restart selected server", True),
-        ("tail", "Watch live logs", True),
-        ("info", "Show connection info and next step", True),
-        ("check", "Check if everything is ready", False),
+        ("update", "Update selected server files", True),
+        ("tail", "Watch selected server logs", True),
+        ("check", "Check selected server health", True),
+        ("backup", "Back up selected server", True),
+        ("helpdesk", "Open the Reforger help desk", True),
         ("switch", "Switch selected server", False),
-        ("more", "More tools", False),
+        ("more", "Setup and admin tools", False),
         ("quit", "Quit", False),
     ]
 
 
 def _print_menu(selected_name: str, show_more: bool) -> None:
     heading("Reforger Manager", f"Selected server: {selected_name}")
-    if not show_more:
-        note("Everyday controls — use More tools only when you need them.")
+    note("Setup and admin tools" if show_more else "Daily operation, maintenance, and step-by-step help")
     print()
     for index, (_, label, _) in enumerate(_actions(show_more), start=1):
-        print(f"  {index}. {label}")
+        key = "0" if label == "Quit" else str(index)
+        print(f"  {key}. {label}")
 
 
 def _selected_action(actions: list[MenuItem], choice: str) -> MenuItem | None:
+    if choice == "0":
+        return next((item for item in actions if item[0] == "quit"), None)
     if choice.isdigit():
         index = int(choice) - 1
         return actions[index] if 0 <= index < len(actions) else None
@@ -136,3 +138,6 @@ def _fill_defaults(args: argparse.Namespace) -> None:
     args.host = getattr(args, "host", None)
     args.timeout = getattr(args, "timeout", 3.0)
     args.apply = getattr(args, "apply", False)
+    args.watch = getattr(args, "watch", 0)
+    args.no_backup = getattr(args, "no_backup", False)
+    args.raw = getattr(args, "raw", False)

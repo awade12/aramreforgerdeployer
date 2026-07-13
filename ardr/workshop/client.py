@@ -51,10 +51,10 @@ def fetch_workshop_bundle(url_or_id: str, scenario_index: int = 0) -> WorkshopBu
     mod_id = parse_workshop_ref(url_or_id)
     asset = _fetch_asset(mod_id)
     scenarios = _parse_scenarios(asset)
-    if not scenarios:
-        raise SystemExit(f"No scenarios found for workshop item {mod_id}.")
-    if scenario_index < 0 or scenario_index >= len(scenarios):
+    if scenarios and (scenario_index < 0 or scenario_index >= len(scenarios)):
         raise SystemExit(f"Scenario index {scenario_index} is out of range (0-{len(scenarios) - 1}).")
+    if not scenarios and scenario_index != 0:
+        raise SystemExit(f"Workshop item {mod_id} has no scenarios; --scenario must be 0.")
     mods = _resolve_mod_tree(mod_id)
     return WorkshopBundle(
         mod_id=mod_id,
@@ -62,7 +62,7 @@ def fetch_workshop_bundle(url_or_id: str, scenario_index: int = 0) -> WorkshopBu
         version=str(asset.get("currentVersionNumber", "")),
         updated_at=str(asset.get("updatedAt", "")),
         summary=str(asset.get("summary", "")),
-        scenario=scenarios[scenario_index],
+        scenario=scenarios[scenario_index] if scenarios else None,
         scenarios=scenarios,
         mods=tuple(mods),
     )

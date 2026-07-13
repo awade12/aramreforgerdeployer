@@ -18,6 +18,7 @@ from ..commands import (
     cmd_install,
     cmd_info,
     cmd_hub,
+    cmd_helpdesk,
     cmd_import,
     cmd_invite,
     cmd_linuxgsm,
@@ -89,6 +90,14 @@ def add_basic(sub: argparse._SubParsersAction) -> None:
     p.add_argument("instance_name")
     p.add_argument("--instance")
     p.set_defaults(func=cmd_hub)
+    p = sub.add_parser(
+        "helpdesk",
+        aliases=["help-desk", "guide"],
+        help="Open step-by-step answers for common Reforger server questions.",
+    )
+    p.add_argument("topic", nargs="?", help="Optional topic, such as mod-update or players-cannot-connect.")
+    p.add_argument("--instance", help="Use a server name in the example commands.")
+    p.set_defaults(func=cmd_helpdesk)
     p = sub.add_parser("completion", help="Print Bash or Zsh tab-completion setup.")
     p.add_argument("shell", choices=["bash", "zsh", "servers"])
     p.set_defaults(func=cmd_completion)

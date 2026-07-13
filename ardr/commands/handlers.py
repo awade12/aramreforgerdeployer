@@ -21,6 +21,7 @@ from ..server.where import show_where
 from ..ui.editor import open_in_micro
 from ..ui.menu import interactive_loop
 from ..ui.hub import server_hub
+from ..ui.helpdesk import show_helpdesk
 from ..integrations.discord import (
     configure_discord,
     resolve_ini_path,
@@ -180,6 +181,10 @@ def cmd_hub(args: argparse.Namespace) -> None:
     from .registry import dispatch_table
 
     server_hub(args, dispatch_table())
+
+
+def cmd_helpdesk(args: argparse.Namespace) -> None:
+    show_helpdesk(getattr(args, "topic", None), getattr(args, "instance", None))
 
 
 def cmd_completion(args: argparse.Namespace) -> None:

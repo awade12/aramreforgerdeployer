@@ -9,7 +9,7 @@ from ..ui.home import show_home
 # command-first interface, but accept that friendlier order too.
 _COMMANDS = {
     "init", "default", "setup", "quickstart", "check", "fix", "configure", "validate",
-    "render", "install", "status", "info", "ports", "linuxgsm", "doctor", "menu",
+    "render", "install", "status", "info", "ports", "linuxgsm", "doctor", "menu", "helpdesk", "help-desk", "guide",
     "start", "up", "stop", "down", "pause", "resume", "debug", "restart", "reload",
     "update", "logs", "tail", "systemd", "windows-task", "battleye", "linux-user",
     "service", "firewall", "backup", "mods", "query", "deploy", "launch", "workshop",
@@ -26,6 +26,7 @@ _EASY_ACTIONS = {
     "query": "query", "ports": "ports", "pause": "pause", "resume": "resume", "debug": "debug",
     "fix": "fix", "repair": "fix", "backup": "backup", "info": "info", "help": "info",
     "resources": "resources", "dashboard": "resources", "invite": "invite", "share": "invite",
+    "helpdesk": "helpdesk", "guide": "helpdesk",
     "where": "where",
     "edit": "edit",
 }
@@ -58,6 +59,8 @@ def _friendly_argv(argv: list[str]) -> list[str]:
     if action:
         if action == "backup":
             return prefix + ["backup", "create", server] + remainder[2:]
+        if action == "helpdesk":
+            return prefix + ["helpdesk", "--instance", server] + remainder[2:]
         return prefix + [action, server] + remainder[2:]
     # An unknown word is much nicer as an unknown server than an opaque
     # argparse command error: the existing resolver lists valid server names.

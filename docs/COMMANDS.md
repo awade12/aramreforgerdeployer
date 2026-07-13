@@ -9,6 +9,8 @@ reforger                         # home screen
 reforger setup                   # first server wizard
 reforger quickstart              # alias for setup
 reforger menu                    # guided multi-server menu
+reforger helpdesk                # searchable step-by-step server help
+reforger helpdesk mod-update --instance testingserver
 reforger where                   # show every active path
 ```
 

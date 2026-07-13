@@ -15,7 +15,8 @@ from ardr.config.discovery import resolve_config_path
 from ardr.config.commands import cmd_configure, cmd_setup
 from ardr.config.io import save_config
 from ardr.config.sample import sample_config
-from ardr.ui.menu import _actions
+from ardr.ui.helpdesk import _find_topic, _topics, show_helpdesk
+from ardr.ui.menu import _actions, _selected_action
 
 
 class EasyCliTests(unittest.TestCase):
@@ -49,8 +50,32 @@ class EasyCliTests(unittest.TestCase):
     def test_menu_keeps_everyday_actions_short(self) -> None:
         labels = [label for _, label, _ in _actions(False)]
         self.assertLessEqual(len(labels), 10)
-        self.assertIn("Start selected server", labels)
-        self.assertIn("More tools", labels)
+        self.assertIn("Open selected server control room", labels)
+        self.assertIn("Open the Reforger help desk", labels)
+        self.assertIn("Setup and admin tools", labels)
+
+    def test_zero_quits_menu(self) -> None:
+        self.assertEqual("quit", _selected_action(_actions(False), "0")[0])
+
+    def test_helpdesk_has_mod_update_runbook(self) -> None:
+        topic = _find_topic(_topics("testingserver"), "mod-update")
+        self.assertIsNotNone(topic)
+        self.assertIn("reforger testingserver mod add <workshop-url>", dict(topic.commands))
+        self.assertGreaterEqual(len(topic.steps), 4)
+
+    def test_helpdesk_topic_can_be_printed_without_config(self) -> None:
+        output = io.StringIO()
+        with redirect_stdout(output):
+            show_helpdesk("server-update", "testingserver")
+        self.assertIn("How do I update", output.getvalue())
+        self.assertIn("reforger testingserver update", output.getvalue())
+
+    def test_helpdesk_command_and_alias_parse(self) -> None:
+        args = build_parser().parse_args(["helpdesk", "mod-update", "--instance", "testingserver"])
+        self.assertEqual("cmd_helpdesk", args.func.__name__)
+        self.assertEqual("testingserver", args.instance)
+        alias = build_parser().parse_args(["guide", "logs"])
+        self.assertEqual("cmd_helpdesk", alias.func.__name__)
 
     def test_configure_shows_preview_and_can_cancel(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -90,3 +115,4 @@ class EasyCliTests(unittest.TestCase):
         self.assertEqual(["where", "testingserver"], _friendly_argv(["testingserver", "where"]))
         self.assertEqual(["edit", "testingserver"], _friendly_argv(["testingserver", "edit"]))
         self.assertEqual(["edit", "testingserver", "--raw"], _friendly_argv(["testingserver", "edit", "raw"]))
+        self.assertEqual(["helpdesk", "--instance", "testingserver"], _friendly_argv(["testingserver", "helpdesk"]))

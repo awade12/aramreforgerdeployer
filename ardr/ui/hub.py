@@ -17,9 +17,13 @@ def server_hub(args: argparse.Namespace, dispatch: dict[str, Action]) -> None:
         config_path, config = load_config(args.config)
         instance = select_instances(config, selected)[0]
         heading(str(instance.get("server", {}).get("name", selected)), friendly_status(config_path, config, instance))
-        print("\n  1. Start     2. Stop      3. Logs      4. Update")
-        print("  5. Mods      6. Backup    7. Health    8. Details")
-        print("  9. Resources 10. Invite    11. Edit settings")
+        print("\n  Run")
+        print("  1. Start       2. Stop        3. Restart      4. Live logs")
+        print("\n  Maintain")
+        print("  5. Update      6. Mods        7. Backup       8. Health")
+        print("\n  Inspect and configure")
+        print("  9. Details    10. Resources  11. Invite      12. Edit settings")
+        print(" 13. Help desk")
         print("  0. Back\n")
         choice = input("What do you want to do? ").strip().lower()
         if choice in {"0", "back", "quit", "exit"}:
@@ -29,23 +33,27 @@ def server_hub(args: argparse.Namespace, dispatch: dict[str, Action]) -> None:
         elif choice == "2":
             _run(dispatch, args, selected, "stop")
         elif choice == "3":
-            _run(dispatch, args, selected, "logs")
+            _run(dispatch, args, selected, "restart")
         elif choice == "4":
-            _run(dispatch, args, selected, "update")
+            _run(dispatch, args, selected, "tail")
         elif choice == "5":
-            _mods(args, config, instance)
+            _run(dispatch, args, selected, "update")
         elif choice == "6":
-            _run(dispatch, args, selected, "backup")
+            _mods(args, config, instance)
         elif choice == "7":
-            _run(dispatch, args, selected, "check")
+            _run(dispatch, args, selected, "backup")
         elif choice == "8":
-            _run(dispatch, args, selected, "info")
+            _run(dispatch, args, selected, "check")
         elif choice == "9":
-            _run(dispatch, args, selected, "resources")
+            _run(dispatch, args, selected, "info")
         elif choice == "10":
-            _run(dispatch, args, selected, "invite")
+            _run(dispatch, args, selected, "resources")
         elif choice == "11":
+            _run(dispatch, args, selected, "invite")
+        elif choice == "12":
             _run(dispatch, args, selected, "edit")
+        elif choice == "13":
+            _run(dispatch, args, selected, "helpdesk")
         else:
             note("Choose one of the numbers shown.")
 
@@ -67,6 +75,8 @@ def _run(dispatch: dict[str, Action], original: argparse.Namespace, instance: st
     args.watch = 0
     args.fix = False
     args.dry_run = True
+    args.topic = None
+    args.raw = False
     if command == "backup":
         args.action = "create"
     try:

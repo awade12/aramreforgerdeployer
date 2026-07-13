@@ -5,7 +5,7 @@ import argparse
 from ..config import load_config
 
 
-_COMMANDS = "setup quickstart menu start stop restart logs tail update install status info check fix backup mods workshop configure ports doctor"
+_COMMANDS = "setup quickstart menu helpdesk start stop restart logs tail update install status info check fix backup mods workshop configure ports doctor"
 
 
 def cmd_completion(args: argparse.Namespace) -> None:

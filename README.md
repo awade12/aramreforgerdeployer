@@ -60,7 +60,7 @@ reforger logs testingserver
 reforger update testingserver --yes
 ```
 
-Run `reforger` with no command for a quick home screen, or `reforger menu` for a guided multi-server menu.
+Run `reforger` with no command for a quick home screen, or `reforger menu` for a guided multi-server menu. Use `reforger helpdesk` for searchable, step-by-step answers to common server questions.
 
 ## No More Folder Hunting
 
@@ -149,6 +149,7 @@ For the complete command reference, see [Commands](docs/COMMANDS.md). For day-to
 - [Operations guide](docs/OPERATIONS.md)
 - [Command reference](docs/COMMANDS.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Reforger help desk](docs/HELP_DESK.md)
 - [Project structure](docs/STRUCTURE.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)

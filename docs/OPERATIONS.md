@@ -8,6 +8,13 @@ reforger testingserver
 
 The server-first command opens the interactive control room. It provides Start, Stop, Logs, Update, Mods, Backup, Health, Details, Resources, Invite, and Edit settings in one place.
 
+The control room and main menu also open the Reforger Help Desk. You can launch it directly or jump to a known runbook:
+
+```bash
+reforger helpdesk
+reforger helpdesk mod-update --instance testingserver
+```
+
 You can use direct commands instead:
 
 ```bash
